@@ -8,17 +8,14 @@ message(STATUS ${INTERNAL_INCLUDE_DIRS})
 # StudyGenAPI 
 set(studygenapi_src 
   common.cxx
-  
+  configurations.hxx
   config_factories.cxx
   image_helpers.cxx 
   mesh_helpers.cxx 
+  mesh_processor.cxx
   study_generator.cxx
 )
-set(studygenapi_hdr 
-  common.h
-  configurations.hxx
-)
-add_library(StudyGenAPI ${studygenapi_src} ${studygenapi_hdr})
+add_library(StudyGenAPI ${studygenapi_src})
 target_link_libraries(StudyGenAPI ${LIB_INTERNAL} ${LIB_EXTERNAL})
 target_include_directories(StudyGenAPI PRIVATE ${INTERNAL_INCLUDE_DIRS})
 

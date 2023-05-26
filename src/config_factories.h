@@ -4,7 +4,6 @@
 #include "common.h"
 #include "configurations.hxx"
 
-
 namespace studygen
 {
 
@@ -34,6 +33,8 @@ public:
   LabelMeshConfigFactory();
   ~LabelMeshConfigFactory();
 
+  // create a pre-defined label mesh config. size: S, M, L
+  static LabelMeshConfig CreateBySize(char size);
 };
 
 } // namespace studygen
