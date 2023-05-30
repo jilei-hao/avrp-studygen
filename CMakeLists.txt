@@ -46,9 +46,23 @@ set(BUILD_CLI OFF)
 set(GREEDY_BUILD_AS_SUBPROJECT TRUE)
 add_subdirectory(greedy)
 
+set(LIB_INTERNAL)
+set(INTERNAL_INCLUDE_DIRS 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/util
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/logic
+)
 
-# Command Line Interface
+# Configure Util
+add_subdirectory(src/util util)
+
+# Configure Logic
+add_subdirectory(src/logic logic)
+
+# Core
 add_subdirectory(src avrspt-studygen)
+
+# Testing
+add_subdirectory(testing)
 
 
 

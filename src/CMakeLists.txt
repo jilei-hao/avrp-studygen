@@ -1,18 +1,13 @@
 
 set(INTERNAL_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/util
+  ${CMAKE_CURRENT_SOURCE_DIR}/logic
 )
 
 message(STATUS ${INTERNAL_INCLUDE_DIRS})
 
 # StudyGenAPI 
 set(studygenapi_src 
-  common.cxx
-  configurations.hxx
-  config_factories.cxx
-  image_helpers.cxx 
-  mesh_helpers.cxx 
-  mesh_processor.cxx
   study_generator.cxx
 )
 add_library(StudyGenAPI ${studygenapi_src})
