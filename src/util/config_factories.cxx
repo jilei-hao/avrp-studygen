@@ -1,4 +1,6 @@
 #include "config_factories.h"
+#include "cl_helper.hxx"
+#include "configurations.hxx"
 
 using namespace studygen;
 
@@ -69,4 +71,26 @@ LabelMeshConfigFactory
     }
   }
   return ret;
+}
+
+// StudyGenConfig Factory
+StudyGenConfigFactory
+::StudyGenConfigFactory()
+{
+
+}
+
+StudyGenConfigFactory
+::~StudyGenConfigFactory()
+{
+
+}
+
+StudyGenConfig
+StudyGenConfigFactory
+:: CreateFromArgs(int argc, char *argv[])
+{
+  StudyGenConfig config;
+
+  return config;
 }

@@ -18,6 +18,8 @@ target_include_directories(StudyGenAPI PRIVATE ${INTERNAL_INCLUDE_DIRS})
 set(studygen_src 
   main.cxx
 )
+
+
 add_executable(StudyGen ${studygen_src})
 target_link_libraries(StudyGen PRIVATE ${LIB_EXTERNAL} ${LIB_INTERNAL} StudyGenAPI)
 target_include_directories(StudyGen PRIVATE ${INTERNAL_INCLUDE_DIRS})

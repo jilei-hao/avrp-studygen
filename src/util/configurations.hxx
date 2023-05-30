@@ -32,10 +32,17 @@ struct LabelMeshConfig
 
 struct SegmentationConfig
 {
-  LabelImage3DType::Pointer refSeg;
+  std::string fnRefSeg;
   TimePointType refTP;
   std::vector<TimePointType> targetTPList;
   LabelMeshConfig labelMeshConfig;
+};
+
+struct StudyGenConfig
+{
+  std::string fnImage4D;
+  TimePointType nT;
+  std::vector<SegmentationConfig> segConfigList;
 };
 
 }

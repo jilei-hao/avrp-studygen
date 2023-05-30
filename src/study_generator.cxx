@@ -14,30 +14,26 @@ StudyGenerator
 
 }
 
-void
+void 
 StudyGenerator
-::SetImage4D(Image4DType::Pointer img4d)
+::SetStudyGenConfig(StudyGenConfig config)
 {
-  m_Image4D = img4d;
+  m_Config = config;
 }
 
-void
+
+int
 StudyGenerator
-::SetNumberOfTimePoints(TimePointType nT)
+::Run()
 {
-  m_NumberOfTimePoints = nT;
+  // Process Inputs
+
+  // Generate Segmentation Mesh
+
+  // Run Propagation
+
+  // Create Applicaiton Data
+
+  return EXIT_SUCCESS;
 }
 
-void
-StudyGenerator
-::AddSegmentationConfig(SegmentationConfig segConfig)
-{
-  m_SegConfigs.push_back(segConfig);
-}
-
-void
-StudyGenerator
-::SetSegmentationConfigs(std::vector<SegmentationConfig> &segConfigList)
-{
-  m_SegConfigs = segConfigList;
-}

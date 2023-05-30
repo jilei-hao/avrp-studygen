@@ -37,6 +37,17 @@ public:
   static LabelMeshConfig CreateBySize(char size);
 };
 
+class StudyGenConfigFactory
+{
+public:
+  StudyGenConfigFactory();
+  ~StudyGenConfigFactory();
+
+  // create a config using commandline parser
+  static StudyGenConfig CreateFromArgs(int argc, char *argv[]);
+
+};
+
 } // namespace studygen
 
 #endif // __config_factories_h

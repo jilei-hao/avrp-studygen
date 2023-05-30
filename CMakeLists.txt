@@ -46,7 +46,12 @@ set(BUILD_CLI OFF)
 set(GREEDY_BUILD_AS_SUBPROJECT TRUE)
 add_subdirectory(greedy)
 
-set(LIB_INTERNAL)
+set(LIB_INTERNAL 
+  util
+  logic
+)
+
+
 set(INTERNAL_INCLUDE_DIRS 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/util
   ${CMAKE_CURRENT_SOURCE_DIR}/src/logic

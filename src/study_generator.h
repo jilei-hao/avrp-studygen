@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "configurations.hxx"
+#include "study_generator_data.hxx"
 
 namespace studygen
 {
@@ -13,23 +14,13 @@ public:
   StudyGenerator();
   ~StudyGenerator();
 
-  // Set Image4D as input
-  void SetImage4D(Image4DType::Pointer img4d);
+  void SetStudyGenConfig(StudyGenConfig config);
 
-  // Set number of time points to process
-  void SetNumberOfTimePoints(TimePointType nT);
-
-  // Add segmentation configuration
-  void AddSegmentationConfig(SegmentationConfig segConfig);
-
-  // Set segmentation configuration list
-  void SetSegmentationConfigs(std::vector<SegmentationConfig> &segConfigList);
-
+  int Run();
 
 private:
-  Image4DType::Pointer m_Image4D;
-  std::vector<SegmentationConfig> m_SegConfigs;
-  TimePointType m_NumberOfTimePoints;
+  StudyGeneratorData m_Data;
+  StudyGenConfig m_Config;
 };
 
 }
