@@ -1,0 +1,127 @@
+{
+  "Options": [
+    {
+      "Name": "S",
+      "ImageSteps": [
+        {
+          "ResampleRate": 200,
+          "GaussianSigmaInVox": 2,
+          "GaussianCutOff": 0.5
+        },
+        {
+          "ResampleRate": 200,
+          "GaussianSigmaInVox": 4,
+          "GaussianCutOff": 0.5
+        }
+      ],
+      "MeshSteps": [
+        {
+          "DecimationRate": 0.2,
+          "SmoothIteration": 20,
+          "SmoothPassband": 0.1
+        },
+        {
+          "DecimationRate": 0.5,
+          "SmoothIteration": 20,
+          "SmoothPassband": 0.1
+        },
+        {
+          "DecimationRate": 0.5,
+          "SmoothIteration": 20,
+          "SmoothPassband": 0.1
+        }
+      ]
+    },
+    {
+      "Name": "M",
+      "ImageSteps": [
+        {
+          "ResampleRate": 200,
+          "GaussianSigmaInVox": 2,
+          "GaussianCutOff": 0.5
+        },
+        {
+          "ResampleRate": 200,
+          "GaussianSigmaInVox": 4,
+          "GaussianCutOff": 0.5
+        }
+      ],
+      "MeshSteps": [
+        {
+          "DecimationRate": 0.2,
+          "SmoothIteration": 50,
+          "SmoothPassband": 0.05
+        },
+        {
+          "DecimationRate": 0.5,
+          "SmoothIteration": 20,
+          "SmoothPassband": 0.1
+        },
+        {
+          "DecimationRate": 0.75,
+          "SmoothIteration": 20,
+          "SmoothPassband": 0.1
+        }
+      ]
+    },
+    {
+      "Name": "L",
+      "ImageSteps": [
+        {
+          "ResampleRate": 200,
+          "GaussianSigmaInVox": 2,
+          "GaussianCutOff": 0.5
+        },
+        {
+          "ResampleRate": 200,
+          "GaussianSigmaInVox": 4,
+          "GaussianCutOff": 0.5
+        }
+      ],
+      "MeshSteps": [
+        {
+          "DecimationRate": 0.2,
+          "SmoothIteration": 100,
+          "SmoothPassband": 0.01
+        },
+        {
+          "DecimationRate": 0.5,
+          "SmoothIteration": 20,
+          "SmoothPassband": 0.1
+        },
+        {
+          "DecimationRate": 0.9,
+          "SmoothIteration": 20,
+          "SmoothPassband": 0.1
+        }
+      ]
+    }
+  ],
+  "LabelConfigs": [
+    {
+      "Label": 1,
+      "Option": "S"
+    },
+    {
+      "Label": 2,
+      "Option": "S"
+    },
+    {
+      "Label": 3,
+      "Option": "S"
+    },
+    {
+      "Label": 4,
+      "Option": "L"
+    },
+    {
+      "Label": 5,
+      "Option": "S"
+    },
+    {
+      "Label": 6,
+      "Option": "S"
+    }
+
+  ]
+}
