@@ -12,4 +12,4 @@ set (util_src
 )
 
 add_library(util ${util_src})
-target_link_libraries(util PRIVATE ${LIB_EXTERNAL})
+target_link_libraries(util PRIVATE ${LIB_EXTERNAL} nlohmann_json::nlohmann_json)

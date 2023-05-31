@@ -46,6 +46,10 @@ set(BUILD_CLI OFF)
 set(GREEDY_BUILD_AS_SUBPROJECT TRUE)
 add_subdirectory(greedy)
 
+# Configure nlohmann_json
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(json)
+
 set(LIB_INTERNAL 
   util
   logic

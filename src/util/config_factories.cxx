@@ -3,6 +3,8 @@
 #include "configurations.hxx"
 #include "usage.hxx"
 
+#include <nlohmann/json.hpp>
+
 using namespace studygen;
 
 // LabelConfigFactory
