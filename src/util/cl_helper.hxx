@@ -232,6 +232,24 @@ public:
   }
 
   /**
+   * Read an unsigned long value
+   */
+  unsigned long read_unsigned_long()
+  {
+    std::string arg = read_arg();
+
+    errno = 0; char *pend;
+    unsigned long val = std::strtoul(arg.c_str(), &pend, 10);
+
+    if(errno || *pend)
+      throw FormatException("Expected an integer as parameter to '%s', instead got '%s'",
+                            current_command.c_str(), arg.c_str());
+
+    return val;
+
+  }
+
+  /**
    * Read one of a list of strings. The optional parameters to this are in the form
    * int, string, int, string, int, string. Each string may in turn contain a list
    * of words (separated by space) that are acceptable. So for example. NULL string
@@ -290,6 +308,29 @@ public:
         throw FormatException("Expected an integer vector delimited by '%c' as parameter to '%s', instead got '%s'",
                               delimiter, current_command.c_str(), arg.c_str());
       vector.push_back((int) val);
+      }
+
+    if(!vector.size())
+      throw FormatException("Expected an integer vector delimited by '%c' as parameter to '%s', instead got '%s'",
+                            delimiter, current_command.c_str(), arg.c_str());
+    return vector;
+  }
+
+  std::vector<unsigned int> read_uint_vector(char delimiter = 'x')
+  {
+    std::string arg = read_arg();
+    std::istringstream f(arg);
+    std::string s;
+    std::vector<unsigned int> vector;
+    while (getline(f, s, delimiter))
+      {
+      errno = 0; char *pend;
+      unsigned long val = std::strtoul(s.c_str(), &pend, 10);
+
+      if(errno || *pend)
+        throw FormatException("Expected an integer vector delimited by '%c' as parameter to '%s', instead got '%s'",
+                              delimiter, current_command.c_str(), arg.c_str());
+      vector.push_back((unsigned int) val);
       }
 
     if(!vector.size())

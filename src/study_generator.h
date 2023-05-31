@@ -19,6 +19,8 @@ public:
   int Run();
 
 private:
+  void ValidateInput();
+
   StudyGeneratorData m_Data;
   StudyGenConfig m_Config;
 };

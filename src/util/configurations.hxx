@@ -2,6 +2,7 @@
 #define __configurations_hxx
 
 #include "common.h"
+#include <ostream>
 
 namespace studygen
 {
@@ -11,23 +12,49 @@ struct MeshStep
   double decimateRate;
   uint16_t smoothIteration = 20;
   double smoothPassband = 0.1;
-  uint16_t smoothFeatureAngle = 0;
-  MeshStep(double dc, uint16_t iter, double pb, uint16_t fa)
-    : decimateRate(dc), smoothIteration(iter), smoothPassband(pb), smoothFeatureAngle(fa) {};
+  MeshStep(double dc, uint16_t iter, double pb)
+    : decimateRate(dc), smoothIteration(iter), smoothPassband(pb) {};
+  
+  void Print(std::ostream &os, std::string prefix = "") const
+  {
+    os << prefix << "-- [Mesh Step] decimation: " << decimateRate
+                 << " , iter: " << smoothIteration
+                 << " , passband: " << smoothPassband << std::endl;
+  }
 };
 
 struct ImageStep
 {
   uint16_t resampleRate;
-  double gaussianSigma;
-  ImageStep(uint16_t rs, double sigma)
-    :resampleRate(rs), gaussianSigma(sigma) {};
+  double gaussianSigmaInVox = 1.0;
+  double gaussianCutOff = 0.5;
+
+  ImageStep(uint16_t rs, double sigma, double cutoff)
+    :resampleRate(rs), gaussianSigmaInVox(sigma), gaussianCutOff(cutoff) {};
+
+  void Print(std::ostream &os, std::string prefix = "") const
+  {
+    os << prefix << "-- [Image Step] rs: " << resampleRate
+                 << ", sigma: " << gaussianSigmaInVox << "vox" 
+                 << ", cutoff: " << gaussianCutOff << std::endl;
+  }
 };
 
-struct LabelMeshConfig
+struct LabelConfig
 {
   std::vector<ImageStep> imgSteps;
   std::vector<MeshStep> meshSteps;
+  
+  void Print(std::ostream &os, std::string prefix = "") const
+  {
+    os << prefix << "[LabelMeshConfig]" << std::endl;
+    os << prefix << "-- Image Steps: " << std::endl;
+    for (auto &is : imgSteps)
+      is.Print(os, prefix + " ");
+    os << prefix << "-- Mesh Steps: " << std::endl;
+    for (auto &ms : meshSteps)
+      ms.Print(os, prefix + " ");
+  }
 };
 
 struct SegmentationConfig
@@ -35,7 +62,25 @@ struct SegmentationConfig
   std::string fnRefSeg;
   TimePointType refTP;
   std::vector<TimePointType> targetTPList;
-  LabelMeshConfig labelMeshConfig;
+  std::map<LabelType, LabelConfig> labelConfigMap;
+
+  void Print(std::ostream &os, std::string prefix = "") const
+  {
+    os << prefix << "[SegmentationConfig] (" << this << ")" << std::endl;
+    os << prefix << "-- Seg Filename: " << fnRefSeg << std::endl;
+    os << prefix << "-- Reference Time Point: " << refTP << std::endl;
+    os << prefix << "-- Target Time Points: ";
+    for (auto tp : targetTPList)
+      os << tp << " ";
+    os << std::endl;
+    os << prefix << "-- Label Configs: " << std::endl;
+    for (auto &kv : labelConfigMap)
+    {
+      os << prefix << " -- Label " << kv.first << ":" << std::endl;
+      kv.second.Print(os, prefix + " ");
+    }
+
+  }
 };
 
 struct StudyGenConfig
@@ -43,6 +88,16 @@ struct StudyGenConfig
   std::string fnImage4D;
   TimePointType nT;
   std::vector<SegmentationConfig> segConfigList;
+
+  void Print(std::ostream &os, std::string prefix = "") const
+  {
+    os << prefix << "[StudyGenConfig] (" << this << ")" << std::endl;
+    os << prefix << "-- Image 4D Filename: " << fnImage4D << std::endl;
+    os << prefix << "-- Number of Time Point Requested: " << nT << std::endl;
+    os << prefix << "-- Numer of Segmentation Configs: " << segConfigList.size() << std::endl;
+    for (auto &sc : segConfigList)
+      sc.Print(os, prefix + "  ");
+  }
 };
 
 }

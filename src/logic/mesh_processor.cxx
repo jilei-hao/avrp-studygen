@@ -16,7 +16,7 @@ MeshProcessor
 
 void
 MeshProcessor
-::SetConfig(LabelMeshConfig config)
+::SetConfig(LabelConfig config)
 {
   m_Config = config;
 }

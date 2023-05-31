@@ -1,5 +1,5 @@
-#ifndef __image_helpers_h
-#define __image_helpers_h
+#ifndef __image_helpers_hxx_
+#define __image_helpers_hxx_
 
 #include "common.h"
 #include <itkImageFileReader.h>
@@ -42,4 +42,4 @@ ImageHelpers::WriteImage(typename TImage::Pointer image, std::string &filename)
 
 
 }
-#endif // __image_helpers_h
+#endif // __image_helpers_hxx_

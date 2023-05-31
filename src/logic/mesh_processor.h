@@ -13,14 +13,14 @@ public:
   MeshProcessor();
   ~MeshProcessor();
 
-  void SetConfig(LabelMeshConfig config);
+  void SetConfig(LabelConfig config);
 
   void SetImage(LabelImage3DType::Pointer img);
 
   MeshPointer GetOutput();
 
 private:
-  LabelMeshConfig m_Config;
+  LabelConfig m_Config;
   LabelImage3DType::Pointer m_Image;
   MeshPointer m_Output;
 

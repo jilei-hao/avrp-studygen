@@ -7,7 +7,7 @@ set (util_src
   config_factories.cxx
   format_exception.hxx
   itk_oriented_ras_image.hxx
-  image_helpers.cxx 
+  image_helpers.hxx 
   mesh_helpers.cxx 
 )
 
