@@ -3,6 +3,9 @@
 
 #include "common.h"
 #include <ostream>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace studygen
 {
@@ -12,6 +15,8 @@ struct MeshStep
   double decimateRate;
   uint16_t smoothIteration = 20;
   double smoothPassband = 0.1;
+
+  MeshStep() {}
   MeshStep(double dc, uint16_t iter, double pb)
     : decimateRate(dc), smoothIteration(iter), smoothPassband(pb) {};
   
@@ -23,12 +28,28 @@ struct MeshStep
   }
 };
 
+inline void to_json(json& j, const MeshStep& ms) {
+  j = json
+  { 
+    {"DecimationRate", ms.decimateRate}, 
+    {"SmoothIteration", ms.smoothIteration}, 
+    {"SmoothPassband", ms.smoothPassband} 
+  };
+};
+
+inline void from_json(const json& j, MeshStep& ms) {
+  j.at("DecimationRate").get_to(ms.decimateRate);
+  j.at("SmoothIteration").get_to(ms.smoothIteration);
+  j.at("SmoothPassband").get_to(ms.smoothPassband);
+};
+
 struct ImageStep
 {
   uint16_t resampleRate;
   double gaussianSigmaInVox = 1.0;
   double gaussianCutOff = 0.5;
 
+  ImageStep() {}
   ImageStep(uint16_t rs, double sigma, double cutoff)
     :resampleRate(rs), gaussianSigmaInVox(sigma), gaussianCutOff(cutoff) {};
 
@@ -38,6 +59,21 @@ struct ImageStep
                  << ", sigma: " << gaussianSigmaInVox << "vox" 
                  << ", cutoff: " << gaussianCutOff << std::endl;
   }
+};
+
+inline void to_json(json& j, const ImageStep& is) {
+  j = json
+  { 
+    {"ResampleRate", is.resampleRate}, 
+    {"GaussianSigmaInVox", is.gaussianSigmaInVox}, 
+    {"GaussianCutOff", is.gaussianCutOff} 
+  };
+};
+
+inline void from_json(const json& j, ImageStep& is) {
+  j.at("ResampleRate").get_to(is.resampleRate);
+  j.at("GaussianSigmaInVox").get_to(is.gaussianSigmaInVox);
+  j.at("GaussianCutOff").get_to(is.gaussianCutOff);
 };
 
 struct LabelConfig

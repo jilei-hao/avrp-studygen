@@ -2,10 +2,13 @@
 #include "cl_helper.hxx"
 #include "configurations.hxx"
 #include "usage.hxx"
+#include "format_exception.hxx"
 
+#include <fstream>
 #include <nlohmann/json.hpp>
 
 using namespace studygen;
+using json = nlohmann::json;
 
 // LabelConfigFactory
 LabelConfigFactory
@@ -74,10 +77,45 @@ LabelConfigFactory::CreateDefaultMap()
 }
 
 std::map<LabelType, LabelConfig> 
-LabelConfigFactory::CreateFromConfigFile()
+LabelConfigFactory::CreateFromConfigFile(std::string &filename)
 {
-  std::map<LabelType, LabelConfig> configMap;
+  std::ifstream f(filename);
+  json data = json::parse(f);
 
+  auto options = data["Options"];
+  std::map<std::string, LabelConfig> lcOptions;
+  for (auto &item : options)
+  {
+    std::string name = item["Name"];
+    LabelConfig lc;
+
+    for (auto &is : item["ImageSteps"])
+    {
+      ImageStep s = is.get<ImageStep>();
+      lc.imgSteps.push_back(s);
+    }
+    for (auto &ms : item["MeshSteps"])
+    {
+      MeshStep s = ms.get<MeshStep>();
+      lc.meshSteps.push_back(s);
+    }
+    lcOptions.insert(std::make_pair(name, lc));
+  }
+
+  auto labels = data["LabelConfigs"];
+
+  std::map<LabelType, LabelConfig> configMap;
+  for (auto &item : labels)
+  {
+    LabelType lb = item["Label"];
+    std::string optionKey = item["Option"];
+
+    if (!lcOptions.count(optionKey))
+      throw FormatException("LabelConfigFactory::CreateFromConfigFile"
+      " Option \"%s\" does not exist in the Options section!", optionKey.c_str());
+
+    configMap.insert(std::make_pair(lb, lcOptions.at(optionKey)));
+  }
 
   return configMap;
 }
@@ -103,6 +141,7 @@ StudyGenConfigFactory
   StudyGenConfig config;
   CommandLineHelper cl(argc, argv);
   SegmentationConfig CurrentSegConfig;
+  size_t seg_config_cnt = 0;
   
 
   while (!cl.is_at_end())
@@ -128,8 +167,9 @@ StudyGenConfigFactory
     else if (cmd == "-s")
     {
       // push the previous configured seg to studygen config
-      if (config.segConfigList.size() > 0)
+      if (seg_config_cnt > 0)
       {
+        std::cout << "Saving previous Seg Config..." << std::endl;
         config.segConfigList.push_back(CurrentSegConfig);
       }
       
@@ -137,6 +177,8 @@ StudyGenConfigFactory
       newConfig.fnRefSeg = cl.read_existing_filename();
       newConfig.labelConfigMap = LabelConfigFactory::CreateDefaultMap();
       CurrentSegConfig = newConfig;
+
+      ++seg_config_cnt;
     }
 
     else if (cmd == "-s_ref")
@@ -151,11 +193,18 @@ StudyGenConfigFactory
 
     else if (cmd == "-s_lc")
     {
-      std::string LabelConfigFile = cl.read_existing_filename();
+      std::string fnLabelConfig = cl.read_existing_filename();
       
       // parse json to get a LabelConfig
+      auto lcMap = LabelConfigFactory::CreateFromConfigFile(fnLabelConfig);
 
       // overwrite default LabelConfig in CurrentSegConfig
+      CurrentSegConfig.labelConfigMap = lcMap;
+    }
+
+    else if (cmd == "-nt")
+    {
+      config.nT = cl.read_unsigned_long();
     }
   }
 

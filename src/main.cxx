@@ -10,5 +10,7 @@ int main (int argc, char *argv[])
   StudyGenConfig config = StudyGenConfigFactory::CreateFromArgs(argc, argv);
   config.Print(std::cout);
   SG.SetStudyGenConfig(config);
-  return SG.Run();
+
+  // return SG.Run();
+  return 0;
 }

@@ -18,7 +18,7 @@ public:
 
   static std::map<LabelType, LabelConfig> CreateDefaultMap();
 
-  static std::map<LabelType, LabelConfig> CreateFromConfigFile();
+  static std::map<LabelType, LabelConfig> CreateFromConfigFile(std::string &filename);
 };
 
 class StudyGenConfigFactory

@@ -61,6 +61,12 @@ set(INTERNAL_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/src/logic
 )
 
+set(EXTERNAL_INCLUDE_DIRS 
+  ${CMAKE_CURRENT_SOURCE_DIR}/json/include
+)
+
+include_directories(${INTERNAL_INCLUDE_DIRS} ${EXTERNAL_INCLUDE_DIRS})
+
 # Configure Util
 add_subdirectory(src/util util)
 

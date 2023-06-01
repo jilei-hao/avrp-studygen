@@ -11,7 +11,7 @@ set(studygenapi_src
   study_generator.cxx
 )
 add_library(StudyGenAPI ${studygenapi_src})
-target_link_libraries(StudyGenAPI ${LIB_INTERNAL} ${LIB_EXTERNAL})
+target_link_libraries(StudyGenAPI PRIVATE ${LIB_INTERNAL} ${LIB_EXTERNAL})
 target_include_directories(StudyGenAPI PRIVATE ${INTERNAL_INCLUDE_DIRS})
 
 # StudyGen CLI
