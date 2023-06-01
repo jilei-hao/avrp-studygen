@@ -16,29 +16,18 @@ public:
 
   // IO
   template <typename TImage>
-  static typename TImage::Pointer ReadImage(std::string &filename);
+  static typename TImage::Pointer ReadImage(std::string &filename)
+  {
+    return itk::ReadImage<TImage>(filename);
+  }
 
   template <typename TImage>
-  static void WriteImage(typename TImage::Pointer image, std::string &filename);
-
-  
+  static void WriteImage(typename TImage::Pointer image, std::string &filename)
+  {
+    itk::WriteImage<TImage>(image, filename);
+  }
 
 };
-
-template <typename TImage>
-typename TImage::Pointer 
-ImageHelpers::ReadImage(std::string &filename)
-{
-  return itk::ReadImage<TImage>(filename);
-}
-
-template <typename TImage>
-void 
-ImageHelpers::WriteImage(typename TImage::Pointer image, std::string &filename)
-{
-  itk::WriteImage<TImage>(image, filename);
-}
-
 
 
 }

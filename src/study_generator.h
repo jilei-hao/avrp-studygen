@@ -23,6 +23,7 @@ private:
 
   StudyGeneratorData m_Data;
   StudyGenConfig m_Config;
+  bool m_Initialized = false;
 };
 
 }
