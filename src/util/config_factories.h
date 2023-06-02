@@ -7,34 +7,18 @@
 namespace studygen
 {
 
-class SegConfigFactory
+class LabelConfigFactory
 {
 public:
-  SegConfigFactory();
-  ~SegConfigFactory();
-
-  void SetReferenceSegmentation(LabelImage3DType::Pointer refSeg);
-
-  void SetReferenceTimePoint(TimePointType refTp);
-
-  void SetTargetTimePoints(std::vector<TimePointType> &tpList);
-  
-
-private:
-  LabelImage3DType::Pointer m_ReferenceSegmentation;
-  TimePointType m_RefTP;
-  std::vector<TimePointType> m_TPList;
-
-};
-
-class LabelMeshConfigFactory
-{
-public:
-  LabelMeshConfigFactory();
-  ~LabelMeshConfigFactory();
+  LabelConfigFactory();
+  ~LabelConfigFactory();
 
   // create a pre-defined label mesh config. size: S, M, L
-  static LabelMeshConfig CreateBySize(char size);
+  static LabelConfig CreateBySize(char size);
+
+  static std::map<LabelType, LabelConfig> CreateDefaultMap();
+
+  static std::map<LabelType, LabelConfig> CreateFromConfigFile(std::string &filename);
 };
 
 class StudyGenConfigFactory

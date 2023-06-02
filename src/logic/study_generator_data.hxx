@@ -10,14 +10,24 @@ struct TimePointData
 {
   Image3DType::Pointer image;
   LabelImage3DType::Pointer seg;
-  MeshPointer mesh;
+  MeshPointer fullMesh;
+  std::map<LabelType, MeshPointer> labelMeshMap;
 };
 
 struct StudyGeneratorData
 {
-  Image4DType::Pointer m_Image4D;
-  std::vector<TimePointData> m_TPDataInput;
-  std::vector<TimePointData> m_TPDataProcessed;
+  Image4DType::Pointer image4D;
+  std::vector<TimePointData> tpInputData;
+  std::vector<TimePointData> tpOutputData;
+  
+  void Initialize(TimePointType nT)
+  {
+    for (auto i = 0; i < nT; ++i)
+    {
+      tpInputData.push_back(TimePointData());
+      tpOutputData.push_back(TimePointData());
+    }
+  }
 };
 
 }

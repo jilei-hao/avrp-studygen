@@ -1,19 +1,33 @@
 #include "common.h"
-#include "usage.hxx"
 #include "study_generator.h"
 #include "config_factories.h"
+#include "format_exception.hxx"
 
 using namespace studygen;
 
 int main (int argc, char *argv[])
 {
-  if (argc < 2)
+  StudyGenerator SG;
+  StudyGenConfig config = StudyGenConfigFactory::CreateFromArgs(argc, argv);
+  //config.Print(std::cout);
+
+  SG.SetStudyGenConfig(config);
+
+  int rc = EXIT_FAILURE;
+
+  try
   {
-    usage(std::cerr);
-    return EXIT_FAILURE;
+    rc = SG.Run();
+  }
+  catch (std::exception &ex)
+  {
+    std::cerr << std::endl << std::endl;
+    std::cerr << "Exception caught during the generator run: " << std::endl;
+    std::cerr << ex.what() << std::endl << std::endl;
   }
 
-  StudyGenerator SG;
-  SG.SetStudyGenConfig(StudyGenConfigFactory::CreateFromArgs(argc, argv));
-  return SG.Run();
+  if (rc == EXIT_SUCCESS)
+    std::cout << "Generator run completed successfully!" << std::endl;
+
+  return rc;
 }

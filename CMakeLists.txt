@@ -46,9 +46,12 @@ set(BUILD_CLI OFF)
 set(GREEDY_BUILD_AS_SUBPROJECT TRUE)
 add_subdirectory(greedy)
 
+# Configure nlohmann_json
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(json)
+
 set(LIB_INTERNAL 
   util
-  logic
 )
 
 
@@ -57,11 +60,14 @@ set(INTERNAL_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/src/logic
 )
 
+set(EXTERNAL_INCLUDE_DIRS 
+  ${CMAKE_CURRENT_SOURCE_DIR}/json/include
+)
+
+include_directories(${INTERNAL_INCLUDE_DIRS} ${EXTERNAL_INCLUDE_DIRS})
+
 # Configure Util
 add_subdirectory(src/util util)
-
-# Configure Logic
-add_subdirectory(src/logic logic)
 
 # Core
 add_subdirectory(src avrspt-studygen)
