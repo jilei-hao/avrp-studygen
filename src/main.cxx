@@ -9,7 +9,7 @@ int main (int argc, char *argv[])
 {
   StudyGenerator SG;
   StudyGenConfig config = StudyGenConfigFactory::CreateFromArgs(argc, argv);
-  config.Print(std::cout);
+  //config.Print(std::cout);
 
   SG.SetStudyGenConfig(config);
 

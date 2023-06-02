@@ -20,6 +20,7 @@ public:
 
 private:
   void ValidateInput();
+  void PrepareInputData();
 
   StudyGeneratorData m_Data;
   StudyGenConfig m_Config;

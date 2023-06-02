@@ -52,7 +52,6 @@ add_subdirectory(json)
 
 set(LIB_INTERNAL 
   util
-  logic
 )
 
 
@@ -69,9 +68,6 @@ include_directories(${INTERNAL_INCLUDE_DIRS} ${EXTERNAL_INCLUDE_DIRS})
 
 # Configure Util
 add_subdirectory(src/util util)
-
-# Configure Logic
-add_subdirectory(src/logic logic)
 
 # Core
 add_subdirectory(src avrspt-studygen)

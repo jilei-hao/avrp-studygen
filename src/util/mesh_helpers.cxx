@@ -1,5 +1,15 @@
 #include "mesh_helpers.h"
 #include <vtkTransform.h>
+#include <itkImageToVTKImageFilter.h>
+#include <vtkMarchingCubes.h>
+#include <vtkTransformPolyDataFilter.h>
+#include <vtkTriangleFilter.h>
+#include <vtkQuadricDecimation.h>
+#include <vtkWindowedSincPolyDataFilter.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkXMLPolyDataWriter.h>
+
+using namespace studygen;
 
 vnl_matrix_fixed<double, 4, 4> 
 MeshHelpers
@@ -71,4 +81,94 @@ getVTKToNiftiTransform(itk::ImageBase<3>::Pointer img3d)
   transform->Update();
 
   return transform;
+}
+
+MeshPointer 
+MeshHelpers
+::GetMeshFromBinaryImage(LabelImage3DType::Pointer bImage)
+{
+  std::cout << "-- getting mesh from bianry image. " << std::endl;
+
+  auto fltITK2VTK = itk::ImageToVTKImageFilter<LabelImage3DType>::New();
+  fltITK2VTK->SetInput(bImage);
+  fltITK2VTK->Update();
+  VTKImagePointer vtkImg = fltITK2VTK->GetOutput();
+  auto vtk2niiTransform = MeshHelpers::getVTKToNiftiTransform(bImage);
+
+  vtkNew<vtkMarchingCubes> fltMC;
+  fltMC->SetInputData(vtkImg);
+  fltMC->SetValue(0, 1);
+  fltMC->ComputeNormalsOn();
+  fltMC->Update();
+
+  MeshPointer polyTail = fltMC->GetOutput();
+
+  vtkNew<vtkTransformPolyDataFilter> fltTransform;
+  fltTransform->SetTransform(vtk2niiTransform);
+  fltTransform->SetInputData(polyTail);
+  fltTransform->Update();
+  polyTail = fltTransform->GetOutput();
+
+  return polyTail;
+}
+
+MeshPointer
+MeshHelpers
+::TriangulateMesh(MeshPointer input)
+{
+  std::cout << "-- triangulating mesh" << std::endl;
+  vtkNew<vtkTriangleFilter> fltTriangle;
+  fltTriangle->SetInputData(input);
+  fltTriangle->Update();
+  return fltTriangle->GetOutput();
+}
+
+MeshPointer 
+MeshHelpers
+::TaubinSmooth(MeshPointer input, uint32_t iter, double passband)
+{
+  std::cout << "-- smoothing mesh... iter: " << iter << "; passband: " << passband << std::endl;
+  vtkNew<vtkWindowedSincPolyDataFilter> fltTaubin;
+  fltTaubin->SetInputData(input);
+  fltTaubin->SetNumberOfIterations(iter);
+  fltTaubin->SetPassBand(passband);
+  fltTaubin->Update();
+  return fltTaubin->GetOutput();
+}
+
+MeshPointer 
+MeshHelpers
+::Decimate(MeshPointer input, double targetReduction)
+{
+  std::cout << "-- decimating mesh... reduction: " << targetReduction << std::endl;
+  vtkNew<vtkQuadricDecimation> fltQDecimate;
+  fltQDecimate->SetInputData(input);
+  fltQDecimate->SetTargetReduction(targetReduction);
+  fltQDecimate->SetVolumePreservation(true);
+  fltQDecimate->SetMapPointData(false);
+  fltQDecimate->Update();
+  return fltQDecimate->GetOutput();
+}
+
+void
+MeshHelpers
+::WriteMesh(MeshPointer mesh, std::string &filename)
+{
+  std::string ext = getFileExtension(filename);
+  if (ext == "vtp")
+    {
+    vtkNew<vtkXMLPolyDataWriter> vtpWriter;
+    vtpWriter->SetInputData(mesh);
+    vtpWriter->SetFileName(filename.c_str());
+    vtpWriter->Write();
+    }
+  else if (ext == "vtk")
+    {
+    vtkNew<vtkPolyDataWriter> vtkWriter;
+    vtkWriter->SetInputData(mesh);
+    vtkWriter->SetFileName(filename.c_str());
+    vtkWriter->Write();
+    }
+  else
+    throw FormatException("[MeshHelpers::WriteMesh] Unknown file extension %s", ext.c_str());
 }

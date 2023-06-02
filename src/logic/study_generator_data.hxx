@@ -10,7 +10,8 @@ struct TimePointData
 {
   Image3DType::Pointer image;
   LabelImage3DType::Pointer seg;
-  MeshPointer mesh;
+  MeshPointer fullMesh;
+  std::map<LabelType, MeshPointer> labelMeshMap;
 };
 
 struct StudyGeneratorData
