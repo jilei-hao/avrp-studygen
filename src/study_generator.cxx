@@ -60,12 +60,12 @@ StudyGenerator
     tpData.seg = segImg;
     tpData.labelMeshMap = MeshProcessor::GenerateLabelMeshMap(segImg, sc.labelConfigMap);
 
-//    for (auto &[lb, mesh] : tpData.labelMeshMap)
-//      {
-//      std::string fndbg =
-//        ssprintf("/Users/jileihao/data/studygen/debug/mesh_tp%02d_lb%02d.vtp", sc.refTP, lb);
-//      mhelpers::WriteMesh(mesh, fndbg);
-//      }
+    for (auto &[lb, mesh] : tpData.labelMeshMap)
+      {
+      std::string fndbg =
+        ssprintf("/Users/jileihao/data/studygen/debug/mesh_tp%02d_lb%02d.vtp", sc.refTP, lb);
+      mhelpers::WriteMesh(mesh, fndbg);
+      }
   }
 }
 

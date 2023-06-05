@@ -103,11 +103,11 @@ MeshHelpers
 
   MeshPointer polyTail = fltMC->GetOutput();
 
-  vtkNew<vtkTransformPolyDataFilter> fltTransform;
-  fltTransform->SetTransform(vtk2niiTransform);
-  fltTransform->SetInputData(polyTail);
-  fltTransform->Update();
-  polyTail = fltTransform->GetOutput();
+//  vtkNew<vtkTransformPolyDataFilter> fltTransform;
+//  fltTransform->SetTransform(vtk2niiTransform);
+//  fltTransform->SetInputData(polyTail);
+//  fltTransform->Update();
+//  polyTail = fltTransform->GetOutput();
 
   return polyTail;
 }

@@ -2,7 +2,7 @@
 
 gen=/Users/jileihao/dev/avrspt-dev/AVRSPT-StudyGen/build/avrspt-studygen/StudyGen
 
-$gen -i /Users/jileihao/data/avrspt/tav48/img4d_tav48_LAS.nii.gz \
+time $gen -i /Users/jileihao/data/avrspt/tav48/img4d_tav48_LAS.nii.gz \
 -s "/Users/jileihao/data/avrspt/tav48/seg02_tav48_NY.nii.gz" \
 -s_ref 2 \
 -s_tgt "1,3,4,5" \
