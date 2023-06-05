@@ -1,7 +1,5 @@
 #include "mesh_helpers.h"
 #include <vtkTransform.h>
-#include <itkImageToVTKImageFilter.h>
-#include <vtkMarchingCubes.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkTriangleFilter.h>
 #include <vtkQuadricDecimation.h>
@@ -73,9 +71,6 @@ getVTKToNiftiTransform(itk::ImageBase<3>::Pointer img3d)
     img3d->GetSpacing().GetVnlVector()
   );
 
-  std::cout << "---- [getVTKToNiftiTransform] vtk2nii:" << std::endl;
-  vtk2nii.print(std::cout);
-
   vtkNew<vtkTransform> transform;
   transform->SetMatrix(vtk2nii.data_block());
   transform->Update();
@@ -89,27 +84,16 @@ MeshHelpers
 {
   std::cout << "-- getting mesh from bianry image. " << std::endl;
 
-  auto fltITK2VTK = itk::ImageToVTKImageFilter<LabelImage3DType>::New();
-  fltITK2VTK->SetInput(bImage);
-  fltITK2VTK->Update();
-  VTKImagePointer vtkImg = fltITK2VTK->GetOutput();
-  auto vtk2niiTransform = MeshHelpers::getVTKToNiftiTransform(bImage);
+  VTKImagePointer vtkImg = GetVTKImage<LabelImage3DType>(bImage);
+  auto vtk2niiTransform = getVTKToNiftiTransform(bImage);
 
-  vtkNew<vtkMarchingCubes> fltMC;
-  fltMC->SetInputData(vtkImg);
-  fltMC->SetValue(0, 1);
-  fltMC->ComputeNormalsOn();
-  fltMC->Update();
+  MeshPointer mesh = RunMarchingCubes(vtkImg, 1.0);
+  vtkNew<vtkTransformPolyDataFilter> fltTransform;
+  fltTransform->SetTransform(vtk2niiTransform);
+  fltTransform->SetInputData(mesh);
+  fltTransform->Update();
 
-  MeshPointer polyTail = fltMC->GetOutput();
-
-//  vtkNew<vtkTransformPolyDataFilter> fltTransform;
-//  fltTransform->SetTransform(vtk2niiTransform);
-//  fltTransform->SetInputData(polyTail);
-//  fltTransform->Update();
-//  polyTail = fltTransform->GetOutput();
-
-  return polyTail;
+  return fltTransform->GetOutput();
 }
 
 MeshPointer
