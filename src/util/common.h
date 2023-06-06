@@ -12,17 +12,16 @@
 #include <vtkSmartPointer.h>
 #include <vtkImageData.h>
 
-#include "itk_oriented_ras_image.hxx"
 #include "format_exception.hxx"
 
 namespace studygen {
   using RealType = double;
-  using LabelType = uint32_t;
+  using LabelType = int16_t;
   using TimePointType = uint32_t;
-  using Image4DType = itk::OrientedRASImage<RealType, 4u>;
-  using Image3DType = itk::OrientedRASImage<RealType, 3u>;
-  using LabelImage4DType = itk::OrientedRASImage<LabelType, 4u>;
-  using LabelImage3DType = itk::OrientedRASImage<LabelType, 3u>;
+  using Image4DType = itk::Image<RealType, 4u>;
+  using Image3DType = itk::Image<RealType, 3u>;
+  using LabelImage4DType = itk::Image<LabelType, 4u>;
+  using LabelImage3DType = itk::Image<LabelType, 3u>;
   using MeshPointer = vtkSmartPointer<vtkPolyData>;
   using VTKImagePointer = vtkSmartPointer<vtkImageData>;
 

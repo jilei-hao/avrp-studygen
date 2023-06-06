@@ -9,23 +9,23 @@ namespace studygen
 struct TimePointData
 {
   Image3DType::Pointer image;
-  LabelImage3DType::Pointer seg;
-  MeshPointer fullMesh;
+  LabelImage3DType::Pointer segmentation;
+  MeshPointer unifiedMesh;
   std::map<LabelType, MeshPointer> labelMeshMap;
 };
 
 struct StudyGeneratorData
 {
   Image4DType::Pointer image4D;
-  std::vector<TimePointData> tpInputData;
-  std::vector<TimePointData> tpOutputData;
+  std::map<TimePointType, TimePointData> tpInputData;
+  std::map<TimePointType, TimePointData> tpOutputData;
   
   void Initialize(TimePointType nT)
   {
-    for (auto i = 0; i < nT; ++i)
+    for (auto i = 1u; i <= nT; ++i)
     {
-      tpInputData.push_back(TimePointData());
-      tpOutputData.push_back(TimePointData());
+      tpInputData.insert(std::make_pair(i, TimePointData()));
+      tpOutputData.insert(std::make_pair(i, TimePointData()));
     }
   }
 };

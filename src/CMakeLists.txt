@@ -5,8 +5,15 @@ set(studygenapi_src
   study_generator.cxx
 )
 add_library(StudyGenAPI ${studygenapi_src})
-target_link_libraries(StudyGenAPI PRIVATE ${LIB_INTERNAL} ${LIB_EXTERNAL})
-target_include_directories(StudyGenAPI PRIVATE ${INTERNAL_INCLUDE_DIRS})
+target_link_libraries(StudyGenAPI PRIVATE
+  ${LIB_INTERNAL}
+  ${LIB_EXTERNAL}
+  greedyapi
+  propagationapi
+)
+target_include_directories(StudyGenAPI PRIVATE
+  ${INTERNAL_INCLUDE_DIRS}
+)
 
 # StudyGen CLI
 set(studygen_src 
@@ -15,5 +22,9 @@ set(studygen_src
 
 
 add_executable(StudyGen ${studygen_src})
-target_link_libraries(StudyGen PRIVATE ${LIB_EXTERNAL} ${LIB_INTERNAL} StudyGenAPI)
+target_link_libraries(StudyGen PRIVATE
+  ${LIB_EXTERNAL}
+  ${LIB_INTERNAL}
+  StudyGenAPI
+)
 target_include_directories(StudyGen PRIVATE ${INTERNAL_INCLUDE_DIRS})
