@@ -36,9 +36,40 @@ void
 StudyGenerator
 ::ValidateInput()
 {
+  m_Config.Validate();
+
   if (!m_Initialized)
     throw FormatException("StudyGenerator::ValidateInput: generator not initialized!");
 }
+
+std::map<TimePointType, studygen::TimePointData>
+StudyGenerator
+::GetOutputData()
+{
+  return m_Data.tpOutputData;
+}
+
+std::string
+StudyGenerator
+::GetLabelMeshTag(LabelType label) const
+{
+  return ssprintf("%s_%d", labelMeshTag, label);
+}
+
+std::vector<LabelType>
+StudyGenerator
+::GetLabelList() const
+{
+  std::vector<LabelType> ret;
+  // always use first seg config as the label list
+  for (auto &[label, config] : m_Config.segConfigList.begin()->labelConfigMap)
+    {
+    ret.push_back(label);
+    }
+
+  return ret;
+}
+
 
 void
 StudyGenerator
@@ -59,14 +90,14 @@ StudyGenerator
     auto segImg = ihelpers::ReadImage<LabelImage3DType>(sc.fnRefSeg);
     auto &tpData = m_Data.tpInputData.at(sc.refTP);
     tpData.segmentation = segImg;
-    tpData.labelMeshMap = MeshProcessor::GenerateLabelMeshMap(segImg, sc.labelConfigMap);
+    tpData.labelMeshMap = MeshProcessor::GenerateLabelMeshMap(segImg, m_Config.labelConfigMap);
 
-    for (auto &[lb, mesh] : tpData.labelMeshMap)
-      {
-      std::string fndbg =
-        ssprintf("/Users/jileihao/data/studygen/debug/mesh_tp%02d_lb%02d.vtp", sc.refTP, lb);
-      mhelpers::WriteMesh(mesh, fndbg);
-      }
+//    for (auto &[lb, mesh] : tpData.labelMeshMap)
+//      {
+//      std::string fndbg =
+//        ssprintf("/Users/jileihao/data/studygen/debug/mesh_tp%02d_lb%02d.vtp", sc.refTP, lb);
+//      mhelpers::WriteMesh(mesh, fndbg);
+//      }
     }
 }
 
@@ -90,6 +121,13 @@ StudyGenerator
   ib.SetResliceMetricToLabel(0.2, false);
   ib.SetGreedyVerbosity(GreedyParameters::VERB_NONE);
   ib.SetPropagationVerbosity(PropagationParameters::VERB_DEFAULT);
+
+  // add label mesh
+  for (auto &[label, mesh] : refTPData.labelMeshMap)
+    {
+    std::string tag = GetLabelMeshTag(label);
+    ib.AddExtraMeshToWarp(mesh, tag);
+    }
 
   return ib.BuildPropagationInput();
 }
@@ -122,7 +160,10 @@ StudyGenerator
   // put result to target time points in the outputTPData
   for (auto tp : segConfig.targetTPList)
     {
-    m_Data.tpOutputData.at(tp).segmentation = output->GetSegmentation3D(tp);
+    auto tpOut = m_Data.tpOutputData.at(tp);
+    tpOut.segmentation = output->GetSegmentation3D(tp);
+    tpOut.unifiedMesh = output->GetMeshSeries().at(tp);
+
     }
 
   // copy reference segmentation over to output data

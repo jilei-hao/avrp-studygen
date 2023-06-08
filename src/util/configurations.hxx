@@ -109,13 +109,6 @@ struct SegmentationConfig
     for (auto tp : targetTPList)
       os << tp << " ";
     os << std::endl;
-    os << prefix << "-- Label Configs: " << std::endl;
-    for (auto &kv : labelConfigMap)
-    {
-      os << prefix << " -- Label " << kv.first << ":" << std::endl;
-      kv.second.Print(os, prefix + " ");
-    }
-
   }
 };
 
@@ -124,6 +117,36 @@ struct StudyGenConfig
   std::string fnImage4D;
   TimePointType nT;
   std::vector<SegmentationConfig> segConfigList;
+  std::map<LabelType, LabelConfig> labelConfigMap;
+
+  void Validate()
+  {
+    // seg config should not be empty
+    if (segConfigList.size() == 0)
+      throw FormatException("[SegGenConfig::Validate] segConfigList is empty!");
+
+    // seg config target time points should cover all timepoints from 1 to nT
+    std::set<TimePointType> tpSet;
+    for (auto &sc : segConfigList)
+      {
+      tpSet.insert(sc.refTP);
+      for (auto tp : sc.targetTPList)
+        tpSet.insert(tp);
+      }
+
+
+    if (tpSet.size() != nT)
+      throw FormatException("[SegGenConfig::Validate] number of tps covered by"
+                            " the seg configs %d does not equal to the number of total tps %d",
+                            tpSet.size(), nT);
+
+    for (auto tp = 1u; tp <= nT; ++tp)
+      {
+      if (!tpSet.count(tp))
+        throw FormatException("[SegGenConfig::Validate] tp %d is not covered by any seg config", tp);
+      }
+
+  }
 
   void Print(std::ostream &os, std::string prefix = "") const
   {
@@ -131,6 +154,12 @@ struct StudyGenConfig
     os << prefix << "-- Image 4D Filename: " << fnImage4D << std::endl;
     os << prefix << "-- Number of Time Point Requested: " << nT << std::endl;
     os << prefix << "-- Numer of Segmentation Configs: " << segConfigList.size() << std::endl;
+    os << prefix << "-- Label Configs: " << std::endl;
+    for (auto &kv : labelConfigMap)
+    {
+      os << prefix << " -- Label " << kv.first << ":" << std::endl;
+      kv.second.Print(os, prefix + " ");
+    }
     for (auto &sc : segConfigList)
       sc.Print(os, prefix + "  ");
   }

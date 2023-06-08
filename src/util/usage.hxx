@@ -19,11 +19,12 @@ int usage(std::ostream &os)
   os << "-s_ref tp                :set reference timepoint for the current seg config" << std::endl;
   os << "-s_tgt tp,tp,tp          :set a comma separated list of target time points "
   "for the current seg config" << std::endl;
-  os << "-s_lc config_file_path   :(optional) set custom label config file path" << std::endl;
+
 
   os << std::endl;
   os << "global options: " << std::endl;
   os << "-nt number_of_tp         :set number of tp to be processed" << std::endl;
+  os << "-lc config_file_path     :set custom label config file path" << std::endl;
 
   return EXIT_FAILURE;
 }

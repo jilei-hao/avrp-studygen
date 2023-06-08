@@ -28,16 +28,23 @@ public:
 
   int Run();
 
+  std::map<TimePointType, TimePointData> GetOutputData();
+
 private:
   void ValidateInput();
   void PrepareInputData();
   void RunPropagations();
   void PropagateSegmentation(SegmentationConfig &segConfig);
   PropagationInputPointer CreatePropagationInput(SegmentationConfig &segConfig);
+  std::string GetLabelMeshTag(LabelType label) const;
+
+  // Get a list of labels processed by the generator
+  std::vector<LabelType> GetLabelList() const;
 
   StudyGeneratorData m_Data;
   StudyGenConfig m_Config;
   bool m_Initialized = false;
+  const char *labelMeshTag = "LabelMesh";
 };
 
 }

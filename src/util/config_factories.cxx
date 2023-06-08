@@ -191,7 +191,7 @@ StudyGenConfigFactory
       CurrentSegConfig.targetTPList = cl.read_uint_vector(',');
     }
 
-    else if (cmd == "-s_lc")
+    else if (cmd == "-lc")
     {
       std::string fnLabelConfig = cl.read_existing_filename();
       
@@ -199,7 +199,7 @@ StudyGenConfigFactory
       auto lcMap = LabelConfigFactory::CreateFromConfigFile(fnLabelConfig);
 
       // overwrite default LabelConfig in CurrentSegConfig
-      CurrentSegConfig.labelConfigMap = lcMap;
+      config.labelConfigMap = lcMap;
     }
 
     else if (cmd == "-nt")
