@@ -46,7 +46,35 @@ std::map<TimePointType, studygen::TimePointData>
 StudyGenerator
 ::GetOutputData()
 {
-  return m_Data.tpOutputData;
+  return m_Data.tpStudyData;
+}
+
+Image3DType::Pointer
+StudyGenerator
+::GetImage(TimePointType tp)
+{
+  return m_Data.tpStudyData.at(tp).image;
+}
+
+LabelImage3DType::Pointer
+StudyGenerator
+::GetSegmentation(TimePointType tp)
+{
+  return m_Data.tpStudyData.at(tp).segmentation;
+}
+
+MeshPointer
+StudyGenerator
+::GetUnifiedMesh(TimePointType tp)
+{
+  return m_Data.tpStudyData.at(tp).unifiedMesh;
+}
+
+MeshPointer
+StudyGenerator
+::GetLabelMesh(TimePointType tp, LabelType label)
+{
+  return m_Data.tpStudyData.at(tp).labelMeshMap.at(label);
 }
 
 std::string
@@ -62,7 +90,7 @@ StudyGenerator
 {
   std::vector<LabelType> ret;
   // always use first seg config as the label list
-  for (auto &[label, config] : m_Config.segConfigList.begin()->labelConfigMap)
+  for (auto &[label, config] : m_Config.labelConfigMap)
     {
     ret.push_back(label);
     }
@@ -88,7 +116,7 @@ StudyGenerator
     {
     std::cout << "------ refTP: " << sc.refTP << std::endl;
     auto segImg = ihelpers::ReadImage<LabelImage3DType>(sc.fnRefSeg);
-    auto &tpData = m_Data.tpInputData.at(sc.refTP);
+    auto &tpData = m_Data.tpData.at(sc.refTP);
     tpData.segmentation = segImg;
     tpData.labelMeshMap = MeshProcessor::GenerateLabelMeshMap(segImg, m_Config.labelConfigMap);
 
@@ -111,8 +139,7 @@ StudyGenerator
   ib.SetImage4D(m_Data.image4D);
 
   TimePointType refTP = segConfig.refTP;
-  auto &refTPData = m_Data.tpInputData.at(refTP);
-  std::cout << "---- refseg: " << refTPData.segmentation << std::endl;
+  auto &refTPData = m_Data.tpData.at(refTP);
   ib.SetReferenceSegmentationIn3D(refTPData.segmentation);
   ib.SetReferenceTimePoint(refTP);
   ib.SetTargetTimePoints(segConfig.targetTPList);
@@ -132,7 +159,8 @@ StudyGenerator
   return ib.BuildPropagationInput();
 }
 
-void
+StudyGenerator
+::PropagationOutputPointer
 StudyGenerator
 ::PropagateSegmentation(SegmentationConfig &segConfig)
 {
@@ -155,21 +183,28 @@ StudyGenerator
     throw(FormatException("Error from PropagationAPI run:\n %s", e.what()));
     }
 
-  auto output = api.GetOutput();
+  return api.GetOutput();
+}
 
+
+void
+StudyGenerator
+::ProcessPropagationOutput(SegmentationConfig &segConfig, PropagationOutputPointer propaOut)
+{
   // put result to target time points in the outputTPData
   for (auto tp : segConfig.targetTPList)
     {
-    auto tpOut = m_Data.tpOutputData.at(tp);
-    tpOut.segmentation = output->GetSegmentation3D(tp);
-    tpOut.unifiedMesh = output->GetMeshSeries().at(tp);
-
+    auto tpOut = m_Data.tpData.at(tp);
+    tpOut.segmentation = propaOut->GetSegmentation3D(tp);
+    tpOut.unifiedMesh = propaOut->GetMeshSeries().at(tp);
+    for (auto &lb : GetLabelList())
+      {
+      auto labelMesh = propaOut->GetExtraMesh(GetLabelMeshTag(lb), tp);
+      tpOut.labelMeshMap.insert(std::make_pair(lb, labelMesh));
+      }
     }
-
-  // copy reference segmentation over to output data
-
-  m_Data.tpOutputData.at(refTP) = m_Data.tpInputData.at(refTP);
 }
+
 
 void
 StudyGenerator
@@ -179,11 +214,10 @@ StudyGenerator
 
   for (auto &sc : m_Config.segConfigList)
     {
-    PropagateSegmentation(sc);
+    auto propaOut = PropagateSegmentation(sc);
+    ProcessPropagationOutput(sc, propaOut);
     }
 }
-
-
 
 
 int
@@ -195,7 +229,6 @@ StudyGenerator
   PrepareInputData();
 
   RunPropagations();
-
   
   // Create Applicaiton Data
 
