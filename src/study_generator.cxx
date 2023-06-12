@@ -103,15 +103,15 @@ void
 StudyGenerator
 ::PrepareInputData()
 {
-  std::cout << "-- preparing input data ..." << std::endl;
+  std::cout << "-- preparing input data..." << std::endl;
   ValidateInput();
   
-  std::cout << "---- reading 4d image ..." << std::endl;
+  std::cout << "---- reading 4d image..." << std::endl;
   m_Data.image4D = ihelpers::ReadImage<Image4DType>(m_Config.fnImage4D);
   // m_Data.image4D->Print(std::cout);
 
   // Process Seg Configs
-  std::cout << "---- processing segmentation configs ..." << std::endl;
+  std::cout << "---- processing segmentation configs..." << std::endl;
   for (auto &sc : m_Config.segConfigList)
     {
     std::cout << "------ refTP: " << sc.refTP << std::endl;
@@ -119,13 +119,6 @@ StudyGenerator
     auto &tpData = m_Data.tpData.at(sc.refTP);
     tpData.segmentation = segImg;
     tpData.labelMeshMap = MeshProcessor::GenerateLabelMeshMap(segImg, m_Config.labelConfigMap);
-
-//    for (auto &[lb, mesh] : tpData.labelMeshMap)
-//      {
-//      std::string fndbg =
-//        ssprintf("/Users/jileihao/data/studygen/debug/mesh_tp%02d_lb%02d.vtp", sc.refTP, lb);
-//      mhelpers::WriteMesh(mesh, fndbg);
-//      }
     }
 }
 
@@ -134,7 +127,7 @@ StudyGenerator
 StudyGenerator
 ::CreatePropagationInput(SegmentationConfig &segConfig)
 {
-  std::cout << "---- Creating propagation input ..." << std::endl;
+  std::cout << "---- Creating propagation input..." << std::endl;
   PropagationInputBuilder<TReal> ib;
   ib.SetImage4D(m_Data.image4D);
 
@@ -191,11 +184,17 @@ void
 StudyGenerator
 ::ProcessPropagationOutput(SegmentationConfig &segConfig, PropagationOutputPointer propaOut)
 {
+  std::cout << "-- Processing propagation output..." << std::endl;
+
   // put result to target time points in the outputTPData
   for (auto tp : segConfig.targetTPList)
     {
-    auto tpOut = m_Data.tpData.at(tp);
+    std::cout << "---- Processing tp " << tp << std::endl;
+    auto &tpOut = m_Data.tpData.at(tp);
     tpOut.segmentation = propaOut->GetSegmentation3D(tp);
+
+    std::cout << "------ seg: " << tpOut.segmentation.GetPointer() << std::endl;
+
     tpOut.unifiedMesh = propaOut->GetMeshSeries().at(tp);
     for (auto &lb : GetLabelList())
       {
@@ -210,13 +209,21 @@ void
 StudyGenerator
 ::RunPropagations()
 {
-  std::cout << "-- Running propagations ... " << std::endl;
+  std::cout << "-- Running propagations... " << std::endl;
 
   for (auto &sc : m_Config.segConfigList)
     {
     auto propaOut = PropagateSegmentation(sc);
     ProcessPropagationOutput(sc, propaOut);
     }
+}
+
+void
+StudyGenerator
+::GenerateStudyData()
+{
+  std::cout << "-- Generating study data..." << std::endl;
+  m_Data.tpStudyData = m_Data.tpData; // direct copy for now. images needs to be resampled
 }
 
 
@@ -230,7 +237,7 @@ StudyGenerator
 
   RunPropagations();
   
-  // Create Applicaiton Data
+  GenerateStudyData();
 
   return EXIT_SUCCESS;
 }

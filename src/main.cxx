@@ -35,8 +35,13 @@ int main (int argc, char *argv[])
 
   const char * dirdbg = "/Users/jileihao/data/studygen/debug";
 
+  std::cout << "-- Exporting debugging data..." << std::endl;
+
   for (auto &[tp, data] : output)
     {
+    std::cout << "---- Exporting tp " << tp << std::endl;
+    std::cout << "------ seg: " << data.segmentation.GetPointer() << std::endl;
+
     // export segmentation
     std::string fndbgseg = ssprintf("%s/seg_%02d.nii.gz", dirdbg, tp);
     ImageHelpers::WriteImage<LabelImage3DType>(data.segmentation, fndbgseg);
