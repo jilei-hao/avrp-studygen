@@ -45,11 +45,21 @@ public:
   /** Get the mesh of a label for a time point */
   MeshPointer GetLabelMesh(TimePointType tp, LabelType label);
 
+  /** Write output data */
+  void WriteOutput();
+
 private:
   void ValidateInput();
   void PrepareInputData();
   void RunPropagations();
   PropagationOutputPointer PropagateSegmentation(SegmentationConfig &segConfig);
+
+  /** write out files for model input */
+  void WriteVolumes();
+  void WriteSegmentations();
+  void WriteModels();
+  void WriteUnifiedModels();
+  void WriteLabelModels();
 
   /** fill propagation output to tp data */
   void ProcessPropagationOutput(SegmentationConfig &segConfig, PropagationOutputPointer propaOut);

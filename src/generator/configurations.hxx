@@ -98,7 +98,6 @@ struct SegmentationConfig
   std::string fnRefSeg;
   TimePointType refTP;
   std::vector<TimePointType> targetTPList;
-  std::map<LabelType, LabelConfig> labelConfigMap;
 
   void Print(std::ostream &os, std::string prefix = "") const
   {
@@ -114,16 +113,26 @@ struct SegmentationConfig
 
 struct StudyGenConfig
 {
-  std::string fnImage4D;
-  TimePointType nT;
-  std::vector<SegmentationConfig> segConfigList;
-  std::map<LabelType, LabelConfig> labelConfigMap;
+  std::string fnImage4D; // reference 4d image filename
+  TimePointType nT; // number of time points to process
+  std::vector<SegmentationConfig> segConfigList; // segmentation propagation config
+  std::map<LabelType, LabelConfig> labelConfigMap; // label level configurations
+  std::string dirOut; // directory for dumping output files
 
   void Validate()
   {
+    // image4d is required
+    if (fnImage4D.size() == 0)
+      throw FormatException("[SegGenConfig::Validate] filename to image4D is not specified!");
+
     // seg config should not be empty
     if (segConfigList.size() == 0)
       throw FormatException("[SegGenConfig::Validate] segConfigList is empty!");
+
+    // output dir is required
+    if (dirOut.size() == 0)
+      throw FormatException("[SegGenConfig::Validate] output directory is empty!");
+
 
     // seg config target time points should cover all timepoints from 1 to nT
     std::set<TimePointType> tpSet;
@@ -153,13 +162,14 @@ struct StudyGenConfig
     os << prefix << "[StudyGenConfig] (" << this << ")" << std::endl;
     os << prefix << "-- Image 4D Filename: " << fnImage4D << std::endl;
     os << prefix << "-- Number of Time Point Requested: " << nT << std::endl;
-    os << prefix << "-- Numer of Segmentation Configs: " << segConfigList.size() << std::endl;
+    os << prefix << "-- Output Directory: " << dirOut << std::endl;
     os << prefix << "-- Label Configs: " << std::endl;
     for (auto &kv : labelConfigMap)
     {
       os << prefix << " -- Label " << kv.first << ":" << std::endl;
       kv.second.Print(os, prefix + " ");
     }
+    os << prefix << "-- Segmentation Configs: " << std::endl;
     for (auto &sc : segConfigList)
       sc.Print(os, prefix + "  ");
   }

@@ -58,7 +58,7 @@ set(LIB_INTERNAL
 set(INTERNAL_INCLUDE_DIRS 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/src/util
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/logic
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/generator
 )
 
 set(EXTERNAL_INCLUDE_DIRS 
@@ -72,7 +72,16 @@ include_directories(${INTERNAL_INCLUDE_DIRS} ${EXTERNAL_INCLUDE_DIRS})
 add_subdirectory(src/util util)
 
 # Core
-add_subdirectory(src avrspt-studygen)
+add_subdirectory(src/generator generator)
+
+# CLI
+# StudyGen CLI
+add_executable(StudyGen src/main.cxx)
+target_link_libraries(StudyGen PRIVATE
+  ${LIB_EXTERNAL}
+  ${LIB_INTERNAL}
+  StudyGenAPI
+)
 
 # Testing
 add_subdirectory(testing)

@@ -47,8 +47,11 @@ int main (int argc, char *argv[])
     ImageHelpers::WriteImage<LabelImage3DType>(data.segmentation, fndbgseg);
 
     // export mesh
-    std::string fndbgmesh = ssprintf("%s/mesh_lb04_tp%02d.vtp", dirdbg, tp);
-    MeshHelpers::WriteMesh(data.labelMeshMap.at(4), fndbgmesh);
+    for (auto &[lb, mesh] : data.labelMeshMap)
+      {
+      std::string fndbgmesh = ssprintf("%s/mesh_lb%02d_tp%02d.vtp", dirdbg, lb, tp);
+        MeshHelpers::WriteMesh(data.labelMeshMap.at(lb), fndbgmesh);
+      }
     }
 
   return rc;

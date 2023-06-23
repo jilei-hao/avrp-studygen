@@ -18,7 +18,11 @@ struct TimePointData
 struct StudyGeneratorData
 {
   Image4DType::Pointer image4D;
+
+  // internal storage of data for processing. not final data for output
   std::map<TimePointType, TimePointData> tpData;
+
+  // final output data
   std::map<TimePointType, TimePointData> tpStudyData;
   
   void Initialize(TimePointType nT)

@@ -42,6 +42,78 @@ StudyGenerator
     throw FormatException("StudyGenerator::ValidateInput: generator not initialized!");
 }
 
+void
+StudyGenerator
+::WriteVolumes()
+{
+  std::cout << "-- writing volumes..." << std::endl;
+  for (auto &[tp, data] : GetOutputData())
+  {
+    std::string fn = ssprintf("%s/img_%02d.nii.gz", m_Config.dirOut.c_str(), tp);
+    ImageHelpers::WriteImage<Image3DType>(data.image, fn);
+  }
+}
+
+void
+StudyGenerator
+::WriteSegmentations()
+{
+  std::cout << "-- writing segmentations..." << std::endl;
+
+  for (auto &[tp, data] : GetOutputData())
+  {
+    std::string fn = ssprintf("%s/seg_%02d.nii.gz", m_Config.dirOut.c_str(), tp);
+    ImageHelpers::WriteImage<LabelImage3DType>(data.segmentation, fn);
+  }
+}
+
+void
+StudyGenerator
+::WriteModels()
+{
+  std::cout << "-- writing models..." << std::endl;
+//  WriteUnifiedModels();
+  WriteLabelModels();
+}
+
+void
+StudyGenerator
+::WriteUnifiedModels()
+{
+  std::cout << "-- writing unified models..." << std::endl;
+
+  for (auto &[tp, data] : GetOutputData())
+  {
+    std::string fn = ssprintf("%s/seg_%02d.nii.gz", m_Config.dirOut.c_str(), tp);
+    MeshHelpers::WriteMesh(data.unifiedMesh, fn);
+  }
+}
+
+void
+StudyGenerator
+::WriteLabelModels()
+{
+  std::cout << "-- writing label models..." << std::endl;
+
+  for (auto &[tp, data] : GetOutputData())
+  {
+    for (auto &[lb, mesh] : data.labelMeshMap)
+    {
+      std::string fn = ssprintf("%s/mesh_lb%02d_tp%02d.vtp", m_Config.dirOut.c_str(), lb, tp);
+      MeshHelpers::WriteMesh(data.labelMeshMap.at(lb), fn);
+    }
+  }
+}
+
+void
+StudyGenerator
+::WriteOutput()
+{
+  WriteVolumes();
+  WriteSegmentations();
+  WriteModels();
+}
+
 std::map<TimePointType, studygen::TimePointData>
 StudyGenerator
 ::GetOutputData()

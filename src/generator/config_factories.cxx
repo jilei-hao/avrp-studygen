@@ -175,7 +175,6 @@ StudyGenConfigFactory
       
       SegmentationConfig newConfig;
       newConfig.fnRefSeg = cl.read_existing_filename();
-      newConfig.labelConfigMap = LabelConfigFactory::CreateDefaultMap();
       CurrentSegConfig = newConfig;
 
       ++seg_config_cnt;
@@ -205,6 +204,11 @@ StudyGenConfigFactory
     else if (cmd == "-nt")
     {
       config.nT = cl.read_unsigned_long();
+    }
+
+    else if (cmd == "-o")
+    {
+      config.dirOut = cl.read_output_dir();
     }
   }
 

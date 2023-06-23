@@ -10,7 +10,7 @@ namespace studygen
 int usage(std::ostream &os)
 {
   os << "Usage: StudyGen -i image.nii.gz -s seg1.nii.gz {seg1_options}"
-  " -s seg2.nii.gz {seg2_options} {global_options}" << std::endl;
+  " -s seg2.nii.gz {seg2_options} {global_options} -o {output_directory} " << std::endl;
 
   os << std::endl;
   os << "segmentation options: " << std::endl;

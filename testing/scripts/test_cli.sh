@@ -2,7 +2,16 @@
 
 gen=/Users/jileihao/dev/avrspt-dev/AVRSPT-StudyGen/build/avrspt-studygen/StudyGen
 
+#time $gen -i /Users/jileihao/data/avrspt/tav48/img4d_tav48_LAS.nii.gz \
+#-s "/Users/jileihao/data/avrspt/tav48/seg02_tav48_NY.nii.gz" \
+#-s_ref 2 \
+#-s_tgt "1,3" \
+#-lc "/Users/jileihao/dev/avrspt-dev/AVRSPT-StudyGen/testing/data/test_label_config.json" \
+#-nt 3
+
+
 time $gen -i /Users/jileihao/data/avrspt/tav48/img4d_tav48_LAS.nii.gz \
+-o "/Users/jileihao/data/studygen/output" \
 -s "/Users/jileihao/data/avrspt/tav48/seg02_tav48_NY.nii.gz" \
 -s_ref 2 \
 -s_tgt "1,3,4,5" \
