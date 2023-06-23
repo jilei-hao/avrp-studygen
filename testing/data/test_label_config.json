@@ -1,6 +1,17 @@
 {
   "Options": [
     {
+      "Name": "XXS",
+      "ImageSteps": [],
+      "MeshSteps": [
+        {
+          "DecimationRate": 0.8,
+          "SmoothIteration": 20,
+          "SmoothPassband": 0.1
+        }
+      ]
+    },
+    {
       "Name": "S",
       "ImageSteps": [
         {

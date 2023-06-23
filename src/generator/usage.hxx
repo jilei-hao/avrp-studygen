@@ -10,7 +10,7 @@ namespace studygen
 int usage(std::ostream &os)
 {
   os << "Usage: StudyGen -i image.nii.gz -s seg1.nii.gz {seg1_options}"
-  " -s seg2.nii.gz {seg2_options} {global_options}" << std::endl;
+  " -s seg2.nii.gz {seg2_options} {global_options} -o {output_directory} " << std::endl;
 
   os << std::endl;
   os << "segmentation options: " << std::endl;
@@ -19,11 +19,12 @@ int usage(std::ostream &os)
   os << "-s_ref tp                :set reference timepoint for the current seg config" << std::endl;
   os << "-s_tgt tp,tp,tp          :set a comma separated list of target time points "
   "for the current seg config" << std::endl;
-  os << "-s_lc config_file_path   :(optional) set custom label config file path" << std::endl;
+
 
   os << std::endl;
   os << "global options: " << std::endl;
   os << "-nt number_of_tp         :set number of tp to be processed" << std::endl;
+  os << "-lc config_file_path     :set custom label config file path" << std::endl;
 
   return EXIT_FAILURE;
 }

@@ -45,9 +45,6 @@ MeshHelpers
 ::ConstructVTKtoNiftiTransform(vnl_matrix<double> m_dir, vnl_vector<double> v_origin, 
   vnl_vector<double> v_spacing)
 {
-  std::cout << "---- [ConstructVTKtoNiftiTransform] dir:\n " << m_dir << "\norg: " 
-            << v_origin << "\nspc:" << v_spacing << std::endl;
-
   vnl_matrix_fixed<double,4,4> vox2nii = ConstructNiftiSform(m_dir, v_origin, v_spacing);
   vnl_matrix_fixed<double,4,4> vtk2vox;
   vtk2vox.set_identity();
@@ -57,7 +54,6 @@ MeshHelpers
     vtk2vox(i,3) = - v_origin[i] / v_spacing[i];
     }
 
-  std::cout << "---- vox2nii: \n" << vox2nii << "\nvtk2vox: \n" << vtk2vox << std::endl;
   return vox2nii * vtk2vox;
 }
 
@@ -82,7 +78,7 @@ MeshPointer
 MeshHelpers
 ::GetMeshFromBinaryImage(LabelImage3DType::Pointer bImage)
 {
-  std::cout << "-- getting mesh from bianry image. " << std::endl;
+  std::cout << "-- getting mesh from binary image. " << std::endl;
 
   VTKImagePointer vtkImg = GetVTKImage<LabelImage3DType>(bImage);
   auto vtk2niiTransform = getVTKToNiftiTransform(bImage);

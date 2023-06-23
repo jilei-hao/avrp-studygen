@@ -12,8 +12,8 @@ namespace studygen
 class MeshProcessor
 {
 public:
-  MeshProcessor() {};
-  ~MeshProcessor() {};
+  MeshProcessor() {}
+  ~MeshProcessor() {}
 
   using ihelpers = ImageHelpers;
   using mhelpers = MeshHelpers;
