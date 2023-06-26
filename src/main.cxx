@@ -11,8 +11,6 @@ int main (int argc, char *argv[])
 {
   StudyGenerator sg;
   StudyGenConfig config = StudyGenConfigFactory::CreateFromArgs(argc, argv);
-  //config.Print(std::cout);
-
   sg.SetStudyGenConfig(config);
 
   int rc = EXIT_FAILURE;
@@ -30,29 +28,10 @@ int main (int argc, char *argv[])
 
   if (rc == EXIT_SUCCESS)
     std::cout << "Generator run completed successfully!" << std::endl;
+  else
+    return rc;
 
-  auto output = sg.GetOutputData();
+  sg.WriteOutput();
 
-  const char * dirdbg = "/Users/jileihao/data/studygen/debug";
-
-  std::cout << "-- Exporting debugging data..." << std::endl;
-
-  for (auto &[tp, data] : output)
-    {
-    std::cout << "---- Exporting tp " << tp << std::endl;
-    std::cout << "------ seg: " << data.segmentation.GetPointer() << std::endl;
-
-    // export segmentation
-    std::string fndbgseg = ssprintf("%s/seg_%02d.nii.gz", dirdbg, tp);
-    ImageHelpers::WriteImage<LabelImage3DType>(data.segmentation, fndbgseg);
-
-    // export mesh
-    for (auto &[lb, mesh] : data.labelMeshMap)
-      {
-      std::string fndbgmesh = ssprintf("%s/mesh_lb%02d_tp%02d.vtp", dirdbg, lb, tp);
-        MeshHelpers::WriteMesh(data.labelMeshMap.at(lb), fndbgmesh);
-      }
-    }
-
-  return rc;
+  return EXIT_SUCCESS;
 }

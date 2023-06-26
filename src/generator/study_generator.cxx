@@ -49,7 +49,7 @@ StudyGenerator
   std::cout << "-- writing volumes..." << std::endl;
   for (auto &[tp, data] : GetOutputData())
   {
-    std::string fn = ssprintf("%s/img_%02d.nii.gz", m_Config.dirOut.c_str(), tp);
+    std::string fn = ssprintf("%s/img_%02d.vti", m_Config.dirOut.c_str(), tp);
     ImageHelpers::WriteImage<Image3DType>(data.image, fn);
   }
 }
@@ -62,7 +62,7 @@ StudyGenerator
 
   for (auto &[tp, data] : GetOutputData())
   {
-    std::string fn = ssprintf("%s/seg_%02d.nii.gz", m_Config.dirOut.c_str(), tp);
+    std::string fn = ssprintf("%s/seg_%02d.vti", m_Config.dirOut.c_str(), tp);
     ImageHelpers::WriteImage<LabelImage3DType>(data.segmentation, fn);
   }
 }
@@ -264,9 +264,7 @@ StudyGenerator
     std::cout << "---- Processing tp " << tp << std::endl;
     auto &tpOut = m_Data.tpData.at(tp);
     tpOut.segmentation = propaOut->GetSegmentation3D(tp);
-
-    std::cout << "------ seg: " << tpOut.segmentation.GetPointer() << std::endl;
-
+    tpOut.image = propaOut->GetImage3D(tp);
     tpOut.unifiedMesh = propaOut->GetMeshSeries().at(tp);
     for (auto &lb : GetLabelList())
       {
@@ -274,6 +272,11 @@ StudyGenerator
       tpOut.labelMeshMap.insert(std::make_pair(lb, labelMesh));
       }
     }
+
+  // process reference frame
+  TimePointType refTP = segConfig.refTP;
+  std::cout << "---- processing reference tp: " << refTP << std::endl;
+  m_Data.tpData.at(refTP).image = propaOut->GetImage3D(refTP);
 }
 
 

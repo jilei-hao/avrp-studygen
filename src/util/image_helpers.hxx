@@ -2,6 +2,7 @@
 #define __image_helpers_hxx_
 
 #include "common.h"
+#include "mesh_helpers.h"
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 #include <itkBinaryThresholdImageFilter.h>
@@ -9,6 +10,8 @@
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkResampleImageFilter.h>
 #include <itkSmoothingRecursiveGaussianImageFilter.h>
+#include <vtkXMLImageDataWriter.h>
+
 
 namespace studygen
 {
@@ -34,10 +37,23 @@ public:
   template <typename TImage>
   static void WriteImage(typename TImage::Pointer image, std::string &filename)
   {
-    auto writer = itk::ImageFileWriter<TImage>::New();
-    writer->SetInput(image);
-    writer->SetFileName(filename);
-    writer->Write();
+    std::string ext = getFileExtension(filename);
+    if (ext == "vti")
+      {
+      auto vtkImg = MeshHelpers::GetVTKImage<TImage>(image);
+      vtkNew<vtkXMLImageDataWriter> writer;
+      writer->SetInputData(vtkImg);
+      writer->SetFileName(filename.c_str());
+      writer->Write();
+      }
+    else
+      {
+      auto writer = itk::ImageFileWriter<TImage>::New();
+      writer->SetInput(image);
+      writer->SetFileName(filename);
+      writer->Write();
+      }
+
   }
 
   template <typename TImageIn, typename TImageOut>
