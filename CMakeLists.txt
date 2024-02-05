@@ -34,9 +34,14 @@ if (NOT ITK_FOUND)
   message(FATAL_ERROR "Unable to find the ITK build folder.")
 endif()
 
+# Download and build nlohmann_json
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 set(LIB_EXTERNAL 
   ${ITK_LIBRARIES} 
   ${VTK_LIBRARIES}
+  nlohmann_json
 )
 
 set(LIB_EXTERNAL_DIRS)
@@ -47,8 +52,7 @@ set(GREEDY_BUILD_AS_SUBPROJECT TRUE)
 add_subdirectory(greedy)
 
 # Configure nlohmann_json
-set(JSON_BuildTests OFF CACHE INTERNAL "")
-add_subdirectory(json)
+
 
 set(LIB_INTERNAL 
   util
