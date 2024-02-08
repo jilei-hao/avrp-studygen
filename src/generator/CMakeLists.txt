@@ -5,7 +5,8 @@ set(studygenapi_src
 )
 
 add_library(StudyGenAPI ${studygenapi_src})
-target_link_libraries(StudyGenAPI PRIVATE
+target_include_directories(StudyGenAPI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(StudyGenAPI PUBLIC
   ${LIB_INTERNAL}
   ${LIB_EXTERNAL}
   greedyapi

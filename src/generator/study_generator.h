@@ -4,8 +4,8 @@
 #include "common.h"
 #include "configurations.hxx"
 #include "study_generator_data.hxx"
-#include <propagation/PropagationIO.h>
-#include <propagation/PropagationAPI.h>
+#include <PropagationIO.h>
+#include <PropagationAPI.h>
 #include <memory>
 
 using namespace propagation;
