@@ -22,7 +22,8 @@ namespace studygen {
   using Image3DType = itk::Image<RealType, 3u>;
   using LabelImage4DType = itk::Image<LabelType, 4u>;
   using LabelImage3DType = itk::Image<LabelType, 3u>;
-  using MeshPointer = vtkSmartPointer<vtkPolyData>;
+  using MeshType = vtkPolyData;
+  using MeshPointer = vtkSmartPointer<MeshType>;
   using VTKImagePointer = vtkSmartPointer<vtkImageData>;
 
   static constexpr LabelType LABELTYPE_MAX = std::numeric_limits<LabelType>::max();

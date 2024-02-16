@@ -111,27 +111,27 @@
   "LabelConfigs": [
     {
       "Label": 1,
-      "Option": "S"
+      "Option": "XXS"
     },
     {
       "Label": 2,
-      "Option": "S"
+      "Option": "XXS"
     },
     {
       "Label": 3,
-      "Option": "S"
+      "Option": "XXS"
     },
     {
       "Label": 4,
-      "Option": "L"
+      "Option": "XXS"
     },
     {
       "Label": 5,
-      "Option": "S"
+      "Option": "XXS"
     },
     {
       "Label": 6,
-      "Option": "S"
+      "Option": "XXS"
     }
 
   ]

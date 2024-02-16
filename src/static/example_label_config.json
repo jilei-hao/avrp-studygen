@@ -1,6 +1,11 @@
 {
   "Options": [
     {
+      "Name": "N",
+      "ImageSteps": [],
+      "MeshSteps": []
+    },
+    {
       "Name": "S",
       "ImageSteps": [
         {
@@ -100,27 +105,27 @@
   "LabelConfigs": [
     {
       "Label": 1,
-      "Option": "S"
+      "Option": "N"
     },
     {
       "Label": 2,
-      "Option": "S"
+      "Option": "N"
     },
     {
       "Label": 3,
-      "Option": "S"
+      "Option": "N"
     },
     {
       "Label": 4,
-      "Option": "L"
+      "Option": "N"
     },
     {
       "Label": 5,
-      "Option": "S"
+      "Option": "N"
     },
     {
       "Label": 6,
-      "Option": "S"
+      "Option": "N"
     }
 
   ]

@@ -29,13 +29,13 @@ public:
 
   // IO
   template <typename TImage>
-  static typename TImage::Pointer ReadImage(std::string &filename)
+  static typename TImage::Pointer ReadImage(std::string filename)
   {
     return itk::ReadImage<TImage>(filename);
   }
 
   template <typename TImage>
-  static void WriteImage(typename TImage::Pointer image, std::string &filename)
+  static void WriteImage(typename TImage::Pointer image, std::string filename)
   {
     std::string ext = getFileExtension(filename);
     if (ext == "vti")
