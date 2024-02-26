@@ -29,12 +29,22 @@
           "ResampleRate": 200,
           "GaussianSigmaInVox": 2,
           "GaussianCutOff": 0.5
+        },
+        {
+          "ResampleRate": 100,
+          "GaussianSigmaInVox": 1,
+          "GaussianCutOff": 0.5
         }
       ],
       "MeshSteps": [
         {
           "DecimationRate": 0.8,
           "SmoothIteration": 5,
+          "SmoothPassband": 0.1
+        },
+        {
+          "DecimationRate": 0.8,
+          "SmoothIteration": 0,
           "SmoothPassband": 0.1
         }
       ]
@@ -156,23 +166,23 @@
   "LabelConfigs": [
     {
       "Label": 1,
-      "Option": "LEAFLET"
+      "Option": "NONE"
     },
     {
       "Label": 2,
-      "Option": "LEAFLET"
+      "Option": "NONE"
     },
     {
       "Label": 3,
-      "Option": "LEAFLET"
+      "Option": "NONE"
     },
     {
       "Label": 4,
-      "Option": "ROOT"
+      "Option": "NONE"
     },
     {
       "Label": 5,
-      "Option": "VAJ"
+      "Option": "NONE"
     },
     {
       "Label": 6,
@@ -180,7 +190,7 @@
     },
     {
       "Label": 16,
-      "Option": "CALC"
+      "Option": "NONE"
     }
 
   ]
