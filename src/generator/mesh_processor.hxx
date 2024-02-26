@@ -1,10 +1,10 @@
 #ifndef __mesh_processor_hxx_
 #define __mesh_processor_hxx_
 
-#include "common.h"
+#include "common.hxx"
 #include "configurations.hxx"
 #include "image_helpers.hxx"
-#include "mesh_helpers.h"
+#include "mesh_helpers.hxx"
 
 namespace studygen
 {

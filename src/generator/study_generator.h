@@ -1,7 +1,7 @@
 #ifndef __study_generator_h
 #define __study_generator_h
 
-#include "common.h"
+#include "common.hxx"
 #include "configurations.hxx"
 #include "study_generator_data.hxx"
 #include <PropagationIO.h>

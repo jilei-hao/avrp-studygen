@@ -23,6 +23,22 @@ public:
   {
 
   }
+
+protected:
+  static MeshPointer
+  RunMeshSteps(MeshPointer mesh, std::vector<MeshStep> &meshSteps, LabelType lb)
+  {
+    std::cout << "MeshProcessor::RunMeshSteps: Label: " << lb << std::endl;
+    MeshPointer meshTail = mesh;
+    for (auto &ms : meshSteps)
+      {
+      auto trMesh = mhelpers::TriangulateMesh(meshTail);
+      auto dcMesh = mhelpers::Decimate(trMesh, ms.decimateRate);
+      meshTail = mhelpers::TaubinSmooth(dcMesh, ms.smoothIteration, ms.smoothPassband);
+      }
+
+    return meshTail;
+  }
 };
 
 #endif

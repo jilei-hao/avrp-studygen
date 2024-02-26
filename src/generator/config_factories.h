@@ -1,7 +1,7 @@
 #ifndef __config_factories_h
 #define __config_factories_h
 
-#include "common.h"
+#include "common.hxx"
 #include "configurations.hxx"
 
 namespace studygen
@@ -18,7 +18,7 @@ public:
 
   static std::map<LabelType, LabelConfig> CreateDefaultMap();
 
-  static std::map<LabelType, LabelConfig> CreateFromConfigFile(std::string &filename);
+  static std::map<LabelType, LabelConfig> CreateFromConfigFile(std::string filename);
 };
 
 class StudyGenConfigFactory

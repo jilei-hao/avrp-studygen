@@ -1,6 +1,6 @@
 #include "study_generator.h"
 #include "image_helpers.hxx"
-#include "mesh_helpers.h"
+#include "mesh_helpers.hxx"
 #include "study_generator_data.hxx"
 #include "format_exception.hxx"
 #include "mesh_processor.hxx"

@@ -1,8 +1,8 @@
 #ifndef __image_helpers_hxx_
 #define __image_helpers_hxx_
 
-#include "common.h"
-#include "mesh_helpers.h"
+#include "common.hxx"
+#include "mesh_helpers.hxx"
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 #include <itkBinaryThresholdImageFilter.h>

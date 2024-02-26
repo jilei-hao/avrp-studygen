@@ -1,7 +1,7 @@
 #ifndef __study_generator_data_hxx_
 #define __study_generator_data_hxx_
 
-#include "common.h"
+#include "common.hxx"
 
 namespace studygen
 {

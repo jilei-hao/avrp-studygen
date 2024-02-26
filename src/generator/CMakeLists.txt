@@ -7,6 +7,7 @@ set(studygenapi_src
 set(studygenapi_include_dir
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/model_generator
+  ${INTERNAL_INCLUDE_DIRS}
 )
 
 add_library(StudyGenAPI ${studygenapi_src})
