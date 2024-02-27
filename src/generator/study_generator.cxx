@@ -95,13 +95,18 @@ StudyGenerator
 {
   std::cout << "-- writing label models..." << std::endl;
 
+  // for (auto &[tp, data] : GetOutputData())
+  // {
+  //   for (auto &[lb, mesh] : data.labelMeshMap)
+  //   {
+  //     std::string fn = ssprintf("%s/mesh_lb%02d_tp%02d.vtp", m_Config.dirOut.c_str(), lb, tp);
+  //     MeshHelpers::WriteMesh(data.labelMeshMap.at(lb), fn);
+  //   }
+  // }
   for (auto &[tp, data] : GetOutputData())
   {
-    for (auto &[lb, mesh] : data.labelMeshMap)
-    {
-      std::string fn = ssprintf("%s/mesh_lb%02d_tp%02d.vtp", m_Config.dirOut.c_str(), lb, tp);
-      MeshHelpers::WriteMesh(data.labelMeshMap.at(lb), fn);
-    }
+    std::string fn = ssprintf("%s/assembled_mesh_tp%02d.vtp", m_Config.dirOut.c_str(), tp);
+    MeshHelpers::WriteMesh(data.assembledMesh, fn);
   }
 }
 
@@ -214,11 +219,19 @@ StudyGenerator
   ib.SetPropagationVerbosity(PropagationParameters::VERB_DEFAULT);
 
   // add label mesh
+  std::vector<MeshPointer> labelMeshes;
+
   for (auto &[label, mesh] : refTPData.labelMeshMap)
     {
-    std::string tag = GetLabelMeshTag(label);
-    ib.AddExtraMeshToWarp(mesh, tag);
+    MeshHelpers::CreateAndFillCellDataWithLabel(mesh, "Label", label);
+    labelMeshes.push_back(mesh);
     }
+
+  std::cout << "-- Assembling Meshes ... " << std::endl;
+  auto assembledMesh = MeshHelpers::AssembleMeshes(labelMeshes);
+  std::string meshTag = "AssembledMesh";
+
+  ib.AddExtraMeshToWarp(assembledMesh, meshTag);
 
   return ib.BuildPropagationInput();
 }
@@ -265,11 +278,14 @@ StudyGenerator
     tpOut.segmentation = propaOut->GetSegmentation3D(tp);
     tpOut.image = propaOut->GetImage3D(tp);
     tpOut.unifiedMesh = propaOut->GetMeshSeries().at(tp);
-    for (auto &lb : GetLabelList())
-      {
-      auto labelMesh = propaOut->GetExtraMesh(GetLabelMeshTag(lb), tp);
-      tpOut.labelMeshMap.insert(std::make_pair(lb, labelMesh));
-      }
+    // for (auto &lb : GetLabelList())
+    //   {
+    //   auto labelMesh = propaOut->GetExtraMesh(GetLabelMeshTag(lb), tp);
+    //   tpOut.labelMeshMap.insert(std::make_pair(lb, labelMesh));
+    //   }
+    // }
+
+    tpOut.assembledMesh = propaOut->GetExtraMesh("AssembledMesh", tp);
     }
 
   // process reference frame

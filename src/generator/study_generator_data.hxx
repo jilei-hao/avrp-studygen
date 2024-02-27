@@ -13,6 +13,7 @@ struct TimePointData
 
   MeshPointer unifiedMesh;
   std::map<LabelType, MeshPointer> labelMeshMap;
+  MeshPointer assembledMesh;
 };
 
 struct StudyGeneratorData
