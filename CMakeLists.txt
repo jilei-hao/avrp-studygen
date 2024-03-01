@@ -77,12 +77,17 @@ add_subdirectory(src/generator generator)
 add_executable(StudyGen src/main.cxx)
 target_link_libraries(StudyGen PUBLIC StudyGenAPI)
 
-add_executable(image2mesh src/image_to_mesh.cxx)
+add_executable(image2mesh src/util/image_to_mesh.cxx)
 target_link_libraries(image2mesh PUBLIC StudyGenAPI)
 
-add_executable(ModelGen src/model_gen.cxx)
+add_executable(ModelGen src/util/model_gen.cxx)
 target_link_libraries(ModelGen PUBLIC StudyGenAPI)
 
+add_executable(SmoothImage src/util/smooth_bimage.cxx)
+target_link_libraries(SmoothImage PUBLIC StudyGenAPI)
+
+add_executable(CropImage src/util/crop_image.cxx)
+target_link_libraries(CropImage PUBLIC StudyGenAPI)
 
 # Testing
 add_subdirectory(testing)

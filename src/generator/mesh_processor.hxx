@@ -46,13 +46,34 @@ private:
     for (auto &is : imgSteps)
       {
       auto rsImg = ihelpers::ResampleImage<LabelImage3DType>(imgTail, is.resampleRate/100.0, ihelpers::NN);
-      auto smImg = ihelpers::SmoothImage<LabelImage3DType>(rsImg, is.gaussianSigmaInVox);
-      imgTail = ihelpers::ThresholdImage<Image3DType, LabelImage3DType>(
-            smImg, is.gaussianCutOff, REALTYPE_INFINITY, 1, 0);
+      LabelImage3DType::RegionType trimmedRegion;
+      auto trimmedImg = ihelpers::TrimImage<LabelImage3DType>(rsImg, 5, trimmedRegion);
+      auto dilatedImg = ihelpers::DilateImage<LabelImage3DType>(trimmedImg, 1.0);
+      auto smImg = ihelpers::SmoothImage<LabelImage3DType>(dilatedImg, is.gaussianSigmaInVox);
+      imgTail = ihelpers::ThresholdImage<Image3DType, LabelImage3DType>(smImg, is.gaussianCutOff, REALTYPE_INFINITY, 1, 0);
+      imgTail = ihelpers::ErodeImage<LabelImage3DType>(imgTail, 0.5);
+      imgTail = ihelpers::RestoreImage<LabelImage3DType>(imgTail, rsImg, trimmedRegion);
       }
 
     return imgTail;
   }
+
+  static LabelImage3DType::Pointer
+  RunImageStepsOld(LabelImage3DType::Pointer image, std::vector<ImageStep> &imgSteps, LabelType lb)
+  {
+    std::cout << "MeshProcessor::RunImageSteps: Label: " << lb << std::endl;
+    LabelImage3DType::Pointer imgTail = image;
+    for (auto &is : imgSteps)
+      {
+      auto rsImg = ihelpers::ResampleImage<LabelImage3DType>(imgTail, is.resampleRate/100.0, ihelpers::NN);
+      auto smImg = ihelpers::SmoothImage<LabelImage3DType>(rsImg, is.gaussianSigmaInVox);
+      imgTail = ihelpers::ThresholdImage<Image3DType, LabelImage3DType>(smImg, is.gaussianCutOff, REALTYPE_INFINITY, 1, 0);
+      }
+
+    return imgTail;
+  }
+
+
 
   static MeshPointer
   RunMeshSteps(MeshPointer mesh, std::vector<MeshStep> &meshSteps, LabelType lb)
