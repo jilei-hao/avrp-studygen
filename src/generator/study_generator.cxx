@@ -72,8 +72,9 @@ StudyGenerator
 ::WriteModels()
 {
   std::cout << "-- writing models..." << std::endl;
-//  WriteUnifiedModels();
-  WriteLabelModels();
+  // WriteUnifiedModels();
+  // WriteLabelModels();
+  WriteAssembledModels();
 }
 
 void
@@ -95,14 +96,22 @@ StudyGenerator
 {
   std::cout << "-- writing label models..." << std::endl;
 
-  // for (auto &[tp, data] : GetOutputData())
-  // {
-  //   for (auto &[lb, mesh] : data.labelMeshMap)
-  //   {
-  //     std::string fn = ssprintf("%s/mesh_lb%02d_tp%02d.vtp", m_Config.dirOut.c_str(), lb, tp);
-  //     MeshHelpers::WriteMesh(data.labelMeshMap.at(lb), fn);
-  //   }
-  // }
+  for (auto &[tp, data] : GetOutputData())
+  {
+    for (auto &[lb, mesh] : data.labelMeshMap)
+    {
+      std::string fn = ssprintf("%s/mesh_lb%02d_tp%02d.vtp", m_Config.dirOut.c_str(), lb, tp);
+      MeshHelpers::WriteMesh(data.labelMeshMap.at(lb), fn);
+    }
+  }
+}
+
+void
+StudyGenerator
+::WriteAssembledModels()
+{
+  std::cout << "-- writing assembled models..." << std::endl;
+
   for (auto &[tp, data] : GetOutputData())
   {
     std::string fn = ssprintf("%s/assembled_mesh_tp%02d.vtp", m_Config.dirOut.c_str(), tp);
@@ -230,6 +239,7 @@ StudyGenerator
   std::cout << "-- Assembling Meshes ... " << std::endl;
   auto assembledMesh = MeshHelpers::AssembleMeshes(labelMeshes);
   std::string meshTag = "AssembledMesh";
+  refTPData.assembledMesh = assembledMesh;
 
   ib.AddExtraMeshToWarp(assembledMesh, meshTag);
 

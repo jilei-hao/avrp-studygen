@@ -60,6 +60,7 @@ private:
   void WriteModels();
   void WriteUnifiedModels();
   void WriteLabelModels();
+  void WriteAssembledModels();
 
   /** fill propagation output to tp data */
   void ProcessPropagationOutput(SegmentationConfig &segConfig, PropagationOutputPointer propaOut);
