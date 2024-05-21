@@ -179,8 +179,8 @@ StudyGenerator
   ValidateInput();
   
   std::cout << "---- reading 4d image..." << std::endl;
+  std::cout << "---- filename: " << m_Config.fnImage4D << std::endl;
   m_Data.image4D = ihelpers::ReadImage<Image4DType>(m_Config.fnImage4D);
-  // m_Data.image4D->Print(std::cout);
 
   // Process Seg Configs
   std::cout << "---- processing segmentation configs..." << std::endl;
