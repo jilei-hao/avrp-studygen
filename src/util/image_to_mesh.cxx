@@ -1,5 +1,5 @@
-#include "common.h"
-#include "mesh_helpers.h"
+#include "common.hxx"
+#include "mesh_helpers.hxx"
 #include "image_helpers.hxx"
 
 using namespace studygen;
@@ -20,8 +20,13 @@ int main (int argc, char *argv[])
   auto image = ImageHelpers::ReadImage<Image3DType>(fnImage);
   auto vtkImg = MeshHelpers::GetVTKImage<Image3DType>(image);
 
-  std::cout << "-- Running Marching Cubes ..." << std::endl;
-  auto mesh = MeshHelpers::RunMarchingCubes(vtkImg, value);
+  // std::cout << "-- Running Marching Cubes ..." << std::endl;
+  // auto mesh = MeshHelpers::RunMarchingCubes(vtkImg, value);
+
+  std::cout << "-- Running ML Flying Edges ..." << std::endl;
+  auto mesh = MeshHelpers::RunMultiLabelFlyingEdges(vtkImg, 1.0);
+
+  mesh = MeshHelpers::ConvertPointDataToCellData(mesh);
 
   std::cout << "-- Writing Mesh ..." << std::endl;
   MeshHelpers::WriteMesh(mesh, fnMesh);

@@ -1,7 +1,7 @@
 #ifndef __study_generator_data_hxx_
 #define __study_generator_data_hxx_
 
-#include "common.h"
+#include "common.hxx"
 
 namespace studygen
 {
@@ -13,6 +13,7 @@ struct TimePointData
 
   MeshPointer unifiedMesh;
   std::map<LabelType, MeshPointer> labelMeshMap;
+  MeshPointer assembledMesh;
 };
 
 struct StudyGeneratorData

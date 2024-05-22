@@ -1,6 +1,6 @@
 #include "study_generator.h"
 #include "image_helpers.hxx"
-#include "mesh_helpers.h"
+#include "mesh_helpers.hxx"
 #include "study_generator_data.hxx"
 #include "format_exception.hxx"
 #include "mesh_processor.hxx"
@@ -72,19 +72,20 @@ StudyGenerator
 ::WriteModels()
 {
   std::cout << "-- writing models..." << std::endl;
-//  WriteUnifiedModels();
+  WriteSingleLabelModels();
   WriteLabelModels();
+  WriteAssembledModels();
 }
 
 void
 StudyGenerator
-::WriteUnifiedModels()
+::WriteSingleLabelModels()
 {
-  std::cout << "-- writing unified models..." << std::endl;
+  std::cout << "-- writing single label models..." << std::endl;
 
   for (auto &[tp, data] : GetOutputData())
   {
-    std::string fn = ssprintf("%s/seg_%02d.nii.gz", m_Config.dirOut.c_str(), tp);
+    std::string fn = ssprintf("%s/model-sl_%02d.vtp", m_Config.dirOut.c_str(), tp);
     MeshHelpers::WriteMesh(data.unifiedMesh, fn);
   }
 }
@@ -102,6 +103,19 @@ StudyGenerator
       std::string fn = ssprintf("%s/mesh_lb%02d_tp%02d.vtp", m_Config.dirOut.c_str(), lb, tp);
       MeshHelpers::WriteMesh(data.labelMeshMap.at(lb), fn);
     }
+  }
+}
+
+void
+StudyGenerator
+::WriteAssembledModels()
+{
+  std::cout << "-- writing assembled models..." << std::endl;
+
+  for (auto &[tp, data] : GetOutputData())
+  {
+    std::string fn = ssprintf("%s/assembled_mesh_tp%02d.vtp", m_Config.dirOut.c_str(), tp);
+    MeshHelpers::WriteMesh(data.assembledMesh, fn);
   }
 }
 
@@ -215,11 +229,24 @@ StudyGenerator
   ib.SetPropagationVerbosity(PropagationParameters::VERB_DEFAULT);
 
   // add label mesh
+  std::vector<MeshPointer> labelMeshes;
+
   for (auto &[label, mesh] : refTPData.labelMeshMap)
     {
-    std::string tag = GetLabelMeshTag(label);
-    ib.AddExtraMeshToWarp(mesh, tag);
+    MeshHelpers::CreateAndFillCellDataWithLabel(mesh, "Label", label);
+    labelMeshes.push_back(mesh);
+    auto lbMeshTag = GetLabelMeshTag(label);
+    ib.AddExtraMeshToWarp(mesh, lbMeshTag);
     }
+
+  // add assembled mesh
+
+  std::cout << "-- Add Assembled Mesh ... " << std::endl;
+  auto assembledMesh = MeshHelpers::AssembleMeshes(labelMeshes);
+  std::string meshTag = "AssembledMesh";
+  refTPData.assembledMesh = assembledMesh;
+
+  ib.AddExtraMeshToWarp(assembledMesh, meshTag);
 
   return ib.BuildPropagationInput();
 }
@@ -269,14 +296,18 @@ StudyGenerator
     for (auto &lb : GetLabelList())
       {
       auto labelMesh = propaOut->GetExtraMesh(GetLabelMeshTag(lb), tp);
+      std::cout << "------ label: " << lb << " mesh: " << labelMesh << std::endl;
       tpOut.labelMeshMap.insert(std::make_pair(lb, labelMesh));
       }
+
+    tpOut.assembledMesh = propaOut->GetExtraMesh("AssembledMesh", tp);
     }
 
   // process reference frame
   TimePointType refTP = segConfig.refTP;
   std::cout << "---- processing reference tp: " << refTP << std::endl;
   m_Data.tpData.at(refTP).image = propaOut->GetImage3D(refTP);
+  m_Data.tpData.at(refTP).unifiedMesh = propaOut->GetMeshSeries().at(refTP);
 }
 
 

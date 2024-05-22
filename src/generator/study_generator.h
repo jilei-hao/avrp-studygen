@@ -1,7 +1,7 @@
 #ifndef __study_generator_h
 #define __study_generator_h
 
-#include "common.h"
+#include "common.hxx"
 #include "configurations.hxx"
 #include "study_generator_data.hxx"
 #include <PropagationIO.h>
@@ -58,8 +58,9 @@ private:
   void WriteVolumes();
   void WriteSegmentations();
   void WriteModels();
-  void WriteUnifiedModels();
+  void WriteSingleLabelModels();
   void WriteLabelModels();
+  void WriteAssembledModels();
 
   /** fill propagation output to tp data */
   void ProcessPropagationOutput(SegmentationConfig &segConfig, PropagationOutputPointer propaOut);

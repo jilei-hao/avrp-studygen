@@ -1,6 +1,6 @@
 #include <iostream>
-#include "common.h"
-#include "mesh_helpers.h"
+#include "common.hxx"
+#include "mesh_helpers.hxx"
 #include "image_helpers.hxx"
 #include "study_generator.h"
 

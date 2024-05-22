@@ -52,13 +52,6 @@ set(BUILD_CLI OFF)
 set(GREEDY_BUILD_AS_SUBPROJECT TRUE)
 add_subdirectory(greedy)
 
-# Configure nlohmann_json
-
-
-set(LIB_INTERNAL 
-  util
-)
-
 
 set(INTERNAL_INCLUDE_DIRS 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -71,10 +64,10 @@ set(EXTERNAL_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/greedy/src
 )
 
-include_directories(${INTERNAL_INCLUDE_DIRS} ${EXTERNAL_INCLUDE_DIRS})
-
-# Configure Util
-add_subdirectory(src/util util)
+include_directories(
+  ${INTERNAL_INCLUDE_DIRS}
+  ${EXTERNAL_INCLUDE_DIRS}
+)
 
 # Core
 add_subdirectory(src/generator generator)
@@ -82,11 +75,19 @@ add_subdirectory(src/generator generator)
 # CLI
 # StudyGen CLI
 add_executable(StudyGen src/main.cxx)
-target_link_libraries(StudyGen PRIVATE
-  ${LIB_EXTERNAL}
-  ${LIB_INTERNAL}
-  StudyGenAPI
-)
+target_link_libraries(StudyGen PUBLIC StudyGenAPI)
+
+add_executable(image2mesh src/util/image_to_mesh.cxx)
+target_link_libraries(image2mesh PUBLIC StudyGenAPI)
+
+add_executable(ModelGen src/util/model_gen.cxx)
+target_link_libraries(ModelGen PUBLIC StudyGenAPI)
+
+add_executable(SmoothImage src/util/smooth_bimage.cxx)
+target_link_libraries(SmoothImage PUBLIC StudyGenAPI)
+
+add_executable(CropImage src/util/crop_image.cxx)
+target_link_libraries(CropImage PUBLIC StudyGenAPI)
 
 # Testing
 add_subdirectory(testing)

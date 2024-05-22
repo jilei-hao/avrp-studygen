@@ -1,7 +1,7 @@
 #ifndef __configurations_hxx
 #define __configurations_hxx
 
-#include "common.h"
+#include "common.hxx"
 #include <ostream>
 #include <nlohmann/json.hpp>
 

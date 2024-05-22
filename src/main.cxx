@@ -1,9 +1,9 @@
-#include "common.h"
+#include "common.hxx"
 #include "study_generator.h"
 #include "config_factories.h"
 #include "format_exception.hxx"
 #include "image_helpers.hxx"
-#include "mesh_helpers.h"
+#include "mesh_helpers.hxx"
 
 using namespace studygen;
 

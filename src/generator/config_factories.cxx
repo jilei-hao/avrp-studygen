@@ -77,7 +77,7 @@ LabelConfigFactory::CreateDefaultMap()
 }
 
 std::map<LabelType, LabelConfig> 
-LabelConfigFactory::CreateFromConfigFile(std::string &filename)
+LabelConfigFactory::CreateFromConfigFile(std::string filename)
 {
   std::ifstream f(filename);
   json data = json::parse(f);

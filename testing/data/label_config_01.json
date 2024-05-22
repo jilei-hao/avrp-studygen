@@ -31,8 +31,8 @@
           "GaussianCutOff": 0.5
         },
         {
-          "ResampleRate": 100,
-          "GaussianSigmaInVox": 1,
+          "ResampleRate": 200,
+          "GaussianSigmaInVox": 1.5,
           "GaussianCutOff": 0.5
         }
       ],
@@ -43,7 +43,7 @@
           "SmoothPassband": 0.1
         },
         {
-          "DecimationRate": 0.8,
+          "DecimationRate": 0.95,
           "SmoothIteration": 0,
           "SmoothPassband": 0.1
         }
@@ -83,6 +83,11 @@
           "ResampleRate": 200,
           "GaussianSigmaInVox": 2,
           "GaussianCutOff": 0.5
+        },
+        {
+          "ResampleRate": 200,
+          "GaussianSigmaInVox": 1.5,
+          "GaussianCutOff": 0.5
         }
       ],
       "MeshSteps": [
@@ -92,7 +97,7 @@
           "SmoothPassband": 0.1
         },
         {
-          "DecimationRate": 0.5,
+          "DecimationRate": 0.9,
           "SmoothIteration": 0,
           "SmoothPassband": 0.1
         }
@@ -124,7 +129,7 @@
           "SmoothPassband": 0.1
         },
         {
-          "DecimationRate": 0.85,
+          "DecimationRate": 0.90,
           "SmoothIteration": 20,
           "SmoothPassband": 0.1
         }
@@ -156,7 +161,7 @@
           "SmoothPassband": 0.1
         },
         {
-          "DecimationRate": 0.95,
+          "DecimationRate": 0.97,
           "SmoothIteration": 20,
           "SmoothPassband": 0.1
         }
@@ -166,15 +171,15 @@
   "LabelConfigs": [
     {
       "Label": 1,
-      "Option": "NONE"
+      "Option": "LEAFLET"
     },
     {
       "Label": 2,
-      "Option": "NONE"
+      "Option": "LEAFLET"
     },
     {
       "Label": 3,
-      "Option": "NONE"
+      "Option": "LEAFLET"
     },
     {
       "Label": 4,
@@ -186,7 +191,7 @@
     },
     {
       "Label": 6,
-      "Option": "STJ"
+      "Option": "NONE"
     },
     {
       "Label": 16,
