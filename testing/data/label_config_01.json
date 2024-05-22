@@ -183,19 +183,19 @@
     },
     {
       "Label": 4,
-      "Option": "ROOT"
+      "Option": "NONE"
     },
     {
       "Label": 5,
-      "Option": "VAJ"
+      "Option": "NONE"
     },
     {
       "Label": 6,
-      "Option": "STJ"
+      "Option": "NONE"
     },
     {
       "Label": 16,
-      "Option": "CALC"
+      "Option": "NONE"
     }
 
   ]

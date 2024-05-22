@@ -234,9 +234,13 @@ StudyGenerator
     {
     MeshHelpers::CreateAndFillCellDataWithLabel(mesh, "Label", label);
     labelMeshes.push_back(mesh);
+    auto lbMeshTag = GetLabelMeshTag(label);
+    ib.AddExtraMeshToWarp(mesh, lbMeshTag);
     }
 
-  std::cout << "-- Assembling Meshes ... " << std::endl;
+  // add assembled mesh
+
+  std::cout << "-- Add Assembled Mesh ... " << std::endl;
   auto assembledMesh = MeshHelpers::AssembleMeshes(labelMeshes);
   std::string meshTag = "AssembledMesh";
   refTPData.assembledMesh = assembledMesh;
@@ -291,6 +295,7 @@ StudyGenerator
     for (auto &lb : GetLabelList())
       {
       auto labelMesh = propaOut->GetExtraMesh(GetLabelMeshTag(lb), tp);
+      std::cout << "------ label: " << lb << " mesh: " << labelMesh << std::endl;
       tpOut.labelMeshMap.insert(std::make_pair(lb, labelMesh));
       }
 
@@ -301,6 +306,7 @@ StudyGenerator
   TimePointType refTP = segConfig.refTP;
   std::cout << "---- processing reference tp: " << refTP << std::endl;
   m_Data.tpData.at(refTP).image = propaOut->GetImage3D(refTP);
+  m_Data.tpData.at(refTP).unifiedMesh = propaOut->GetMeshSeries().at(refTP);
 }
 
 
