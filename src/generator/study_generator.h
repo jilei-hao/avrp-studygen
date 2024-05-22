@@ -58,7 +58,7 @@ private:
   void WriteVolumes();
   void WriteSegmentations();
   void WriteModels();
-  void WriteUnifiedModels();
+  void WriteSingleLabelModels();
   void WriteLabelModels();
   void WriteAssembledModels();
 

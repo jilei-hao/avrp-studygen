@@ -72,20 +72,20 @@ StudyGenerator
 ::WriteModels()
 {
   std::cout << "-- writing models..." << std::endl;
-  // WriteUnifiedModels();
-  // WriteLabelModels();
+  WriteSingleLabelModels();
+  WriteLabelModels();
   WriteAssembledModels();
 }
 
 void
 StudyGenerator
-::WriteUnifiedModels()
+::WriteSingleLabelModels()
 {
-  std::cout << "-- writing unified models..." << std::endl;
+  std::cout << "-- writing single label models..." << std::endl;
 
   for (auto &[tp, data] : GetOutputData())
   {
-    std::string fn = ssprintf("%s/seg_%02d.nii.gz", m_Config.dirOut.c_str(), tp);
+    std::string fn = ssprintf("%s/model-sl_%02d.vtp", m_Config.dirOut.c_str(), tp);
     MeshHelpers::WriteMesh(data.unifiedMesh, fn);
   }
 }
@@ -288,12 +288,11 @@ StudyGenerator
     tpOut.segmentation = propaOut->GetSegmentation3D(tp);
     tpOut.image = propaOut->GetImage3D(tp);
     tpOut.unifiedMesh = propaOut->GetMeshSeries().at(tp);
-    // for (auto &lb : GetLabelList())
-    //   {
-    //   auto labelMesh = propaOut->GetExtraMesh(GetLabelMeshTag(lb), tp);
-    //   tpOut.labelMeshMap.insert(std::make_pair(lb, labelMesh));
-    //   }
-    // }
+    for (auto &lb : GetLabelList())
+      {
+      auto labelMesh = propaOut->GetExtraMesh(GetLabelMeshTag(lb), tp);
+      tpOut.labelMeshMap.insert(std::make_pair(lb, labelMesh));
+      }
 
     tpOut.assembledMesh = propaOut->GetExtraMesh("AssembledMesh", tp);
     }
