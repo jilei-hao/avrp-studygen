@@ -3,6 +3,7 @@
 
 #include "common.hxx"
 #include "mesh_helpers.hxx"
+#include <utility>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 #include <itkBinaryThresholdImageFilter.h>
@@ -187,6 +188,7 @@ public:
     return output;
   }
 
+  // expand region to cover the target coordinate
   template <typename TImage>
   static void
   ExpandRegion(typename TImage::RegionType &region, const typename TImage::IndexType &idx)
@@ -295,6 +297,80 @@ public:
     filter->Update();
 
     return filter->GetOutput();
+  }
+
+  // Scale the region by a factor. Input is intact and a new region is returned.
+  template <typename TImage>
+  static typename TImage::RegionType
+  ScaleRegion(typename TImage::RegionType &region, double scale)
+  {
+    typename TImage::SizeType radius = region.GetSize();
+    for (size_t i = 0; i < 3; i++)
+    {
+      radius[i] = (radius[i] * scale - radius[i]) / 2.0;
+    }
+    // copy the region for returning
+    typename TImage::RegionType scaledRegion = region;
+
+    if (scale < 1)
+    {
+      scaledRegion.ShrinkByRadius(radius);
+    }
+    else
+    {
+      scaledRegion.PadByRadius(radius);
+    }
+
+    return scaledRegion;
+  }
+
+  // Crop the region by the bounding box. The region is modified in place.
+  template <typename TImage>
+  static void CropRegionByBoundingBox(typename TImage::RegionType &region, typename TImage::RegionType &boundingBox)
+  {
+    typename TImage::IndexType idx = boundingBox.GetIndex();
+    typename TImage::SizeType size = boundingBox.GetSize();
+    typename TImage::IndexType regionIdx = region.GetIndex();
+    typename TImage::SizeType regionSize = region.GetSize();
+    for (size_t i = 0; i < 3; i++)
+    {
+      if (regionIdx[i] < idx[i])
+      {
+        regionSize[i] -= idx[i] - regionIdx[i];
+        regionIdx[i] = idx[i];
+      }
+      if (regionIdx[i] + regionSize[i] > idx[i] + size[i])
+      {
+        regionSize[i] = size[i] - (regionIdx[i] - idx[i]);
+      }
+    }
+    region.SetIndex(regionIdx);
+    region.SetSize(regionSize);
+  }
+
+  template <typename TGreyImage3D, typename TMaskImage3D>
+  static std::pair<typename TGreyImage3D::Pointer, typename TMaskImage3D::Pointer>
+  TrimImageByMask(typename TGreyImage3D::Pointer image, typename TMaskImage3D::Pointer mask, double scale = 1.3)
+  {
+    std::cout << "-- [image_helpers::TrimImageByMask] scale: " << scale << std::endl;
+
+        // Play with the regions
+    auto regMask = image->GetLargestPossibleRegion();
+    auto regionGrey = mask->GetLargestPossibleRegion();
+    
+    LabelImage3DType::RegionType trimmedRegion;
+    auto trimmedImg = TrimImage<LabelImage3DType>(mask, 5, trimmedRegion);
+
+    auto scaledRegion = ScaleRegion<LabelImage3DType>(trimmedRegion, scale);
+
+    CropRegionByBoundingBox<LabelImage3DType>(scaledRegion, regMask);
+
+    // Crop the images
+    auto outMask = ExtractRegion<LabelImage3DType>(mask, scaledRegion);
+
+    auto outImage = ExtractRegion<Image3DType>(image, scaledRegion);
+
+    return std::pair<typename TGreyImage3D::Pointer, typename TMaskImage3D::Pointer>(outImage, outMask);
   }
 };
 

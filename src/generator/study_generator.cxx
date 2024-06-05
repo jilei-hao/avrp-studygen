@@ -198,14 +198,27 @@ StudyGenerator
 
   // Process Seg Configs
   std::cout << "---- processing segmentation configs..." << std::endl;
+  LabelImage3DType::Pointer firstSegImg = nullptr;
   for (auto &sc : m_Config.segConfigList)
     {
     std::cout << "------ refTP: " << sc.refTP << std::endl;
     auto segImg = ihelpers::ReadImage<LabelImage3DType>(sc.fnRefSeg);
+
+    if (!firstSegImg)
+      firstSegImg = segImg;
+
     auto &tpData = m_Data.tpData.at(sc.refTP);
     tpData.segmentation = segImg;
     tpData.labelMeshMap = MeshProcessor::GenerateLabelMeshMap(segImg, m_Config.labelConfigMap);
     }
+
+  // Trim the Image by seg image from the first segConfig
+  if (m_Config.trim)
+    {
+    std::cout << "---- trimming image..." << std::endl;
+    // m_Data.image4D = ihelpers::TrimImageByMask(m_Data.image4D, firstSegImg, m_Config.trimmedRegionScale);
+    }
+
 }
 
 StudyGenerator

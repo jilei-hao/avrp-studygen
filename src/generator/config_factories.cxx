@@ -206,6 +206,12 @@ StudyGenConfigFactory
       config.nT = cl.read_unsigned_long();
     }
 
+    else if (cmd == "-trimmed-region-scale")
+    {
+      config.trim = true;
+      config.trimmedRegionScale = cl.read_double();
+    }
+
     else if (cmd == "-o")
     {
       config.dirOut = cl.read_output_dir();
