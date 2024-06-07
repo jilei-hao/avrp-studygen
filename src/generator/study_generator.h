@@ -61,6 +61,8 @@ private:
   void WriteSingleLabelModels();
   void WriteLabelModels();
   void WriteAssembledModels();
+  void WriteSegmentation4D();
+  void WriteImage4D();
 
   /** fill propagation output to tp data */
   void ProcessPropagationOutput(SegmentationConfig &segConfig, PropagationOutputPointer propaOut);
