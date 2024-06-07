@@ -50,7 +50,7 @@ StudyGenerator
   for (auto &[tp, data] : GetOutputData())
   {
     std::string fn = ssprintf("%s/img_%02d.vti", m_Config.dirOut.c_str(), tp);
-    ImageHelpers::WriteImage<Image3DType>(data.image, fn);
+    ImageHelpers::WriteVTKImage<Image3DType>(data.image, fn);
   }
 }
 
@@ -63,8 +63,26 @@ StudyGenerator
   for (auto &[tp, data] : GetOutputData())
   {
     std::string fn = ssprintf("%s/seg_%02d.vti", m_Config.dirOut.c_str(), tp);
-    ImageHelpers::WriteImage<LabelImage3DType>(data.segmentation, fn);
+    ImageHelpers::WriteVTKImage<LabelImage3DType>(data.segmentation, fn);
   }
+}
+
+void
+StudyGenerator
+::WriteSegmentation4D()
+{
+  std::cout << "-- writing 4d segmentation..." << std::endl;
+  std::string fn = ssprintf("%s/seg4d.nii.gz", m_Config.dirOut.c_str());
+  ImageHelpers::WriteImage<LabelImage4DType>(m_Data.segmentation4D, fn);
+}
+
+void
+StudyGenerator
+::WriteImage4D()
+{
+  std::cout << "-- writing 4d image..." << std::endl;
+  std::string fn = ssprintf("%s/img4d.nii.gz", m_Config.dirOut.c_str());
+  ImageHelpers::WriteImage<Image4DType>(m_Data.image4D, fn);
 }
 
 void
@@ -123,9 +141,12 @@ void
 StudyGenerator
 ::WriteOutput()
 {
+  std::cout << "-- writing output..." << std::endl;
   WriteVolumes();
   WriteSegmentations();
   WriteModels();
+  WriteSegmentation4D();
+  WriteImage4D();
 }
 
 std::map<TimePointType, studygen::TimePointData>
@@ -198,14 +219,51 @@ StudyGenerator
 
   // Process Seg Configs
   std::cout << "---- processing segmentation configs..." << std::endl;
+
+  // Get region to trim the image
+  LabelImage3DType::RegionType trimmedRegion;
+  LabelImage3DType::Pointer firstSegImg = nullptr;
+
   for (auto &sc : m_Config.segConfigList)
     {
     std::cout << "------ refTP: " << sc.refTP << std::endl;
     auto segImg = ihelpers::ReadImage<LabelImage3DType>(sc.fnRefSeg);
+
+    // Trim the Seg Image
+    if (m_Config.trim)
+      {
+      if (!firstSegImg)
+        {
+          firstSegImg = segImg;
+          trimmedRegion = ihelpers::GetTrimmedRegion<LabelImage3DType>(segImg, 5, m_Config.trimmedRegionScale);
+        }
+       
+      std::cout << "------ trimming seg image..." << std::endl;
+      segImg = ihelpers::ExtractRegion<LabelImage3DType>(segImg, trimmedRegion);
+      }
+
     auto &tpData = m_Data.tpData.at(sc.refTP);
     tpData.segmentation = segImg;
     tpData.labelMeshMap = MeshProcessor::GenerateLabelMeshMap(segImg, m_Config.labelConfigMap);
     }
+
+  // Trim the Image
+  if (m_Config.trim)
+    {
+    std::cout << "---- trimming image..." << std::endl;
+    std::vector<Image3DType::Pointer> tpImgList;
+    for (unsigned int i = 0; i < m_Config.nT; ++i)
+      {
+      std::cout << "------ processing tp: " << i << std::endl;
+
+      auto tpImg = ihelpers::ExtractTimePointImage<Image3DType, Image4DType>(m_Data.image4D, i);
+      tpImg = ihelpers::ExtractRegion<Image3DType>(tpImg, trimmedRegion);
+      tpImgList.push_back(tpImg);
+      }
+
+    m_Data.image4D = ihelpers::CreateTimeSeriesImageFromList<Image3DType, Image4DType>(tpImgList);
+    }
+
 }
 
 StudyGenerator
@@ -284,6 +342,8 @@ StudyGenerator
 ::ProcessPropagationOutput(SegmentationConfig &segConfig, PropagationOutputPointer propaOut)
 {
   std::cout << "-- Processing propagation output..." << std::endl;
+
+  m_Data.segmentation4D = propaOut->GetSegmentation4D();
 
   // put result to target time points in the outputTPData
   for (auto tp : segConfig.targetTPList)

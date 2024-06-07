@@ -3,6 +3,7 @@
 
 #include "common.hxx"
 #include "mesh_helpers.hxx"
+#include <utility>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 #include <itkBinaryThresholdImageFilter.h>
@@ -42,24 +43,22 @@ public:
   template <typename TImage>
   static void WriteImage(typename TImage::Pointer image, std::string filename)
   {
-    std::string ext = getFileExtension(filename);
-    if (ext == "vti")
-      {
-      auto vtkImg = MeshHelpers::GetVTKImage<TImage>(image);
-      vtkNew<vtkXMLImageDataWriter> writer;
-      writer->SetInputData(vtkImg);
-      writer->SetFileName(filename.c_str());
-      writer->Write();
-      }
-    else
-      {
-      auto writer = itk::ImageFileWriter<TImage>::New();
-      writer->SetInput(image);
-      writer->SetFileName(filename);
-      writer->Write();
-      }
-
+    auto writer = itk::ImageFileWriter<TImage>::New();
+    writer->SetInput(image);
+    writer->SetFileName(filename);
+    writer->Write();
   }
+
+  template <typename TImage>
+  static void WriteVTKImage(typename TImage::Pointer image, std::string filename)
+  {
+    auto vtkImg = MeshHelpers::GetVTKImage<TImage>(image);
+    vtkNew<vtkXMLImageDataWriter> writer;
+    writer->SetInputData(vtkImg);
+    writer->SetFileName(filename.c_str());
+    writer->Write();
+  }
+
 
   template <typename TImageIn, typename TImageOut>
   static typename TImageOut::Pointer
@@ -187,6 +186,7 @@ public:
     return output;
   }
 
+  // expand region to cover the target coordinate
   template <typename TImage>
   static void
   ExpandRegion(typename TImage::RegionType &region, const typename TImage::IndexType &idx)
@@ -295,6 +295,195 @@ public:
     filter->Update();
 
     return filter->GetOutput();
+  }
+
+  // Scale the region by a factor. Input is intact and a new region is returned.
+  template <typename TImage>
+  static typename TImage::RegionType
+  ScaleRegion(typename TImage::RegionType &region, double scale)
+  {
+    typename TImage::SizeType radius = region.GetSize();
+    for (size_t i = 0; i < 3; i++)
+    {
+      radius[i] = (radius[i] * scale - radius[i]) / 2.0;
+    }
+    // copy the region for returning
+    typename TImage::RegionType scaledRegion = region;
+
+    if (scale < 1)
+    {
+      scaledRegion.ShrinkByRadius(radius);
+    }
+    else
+    {
+      scaledRegion.PadByRadius(radius);
+    }
+
+    return scaledRegion;
+  }
+
+  // Crop the region by the bounding box. The region is modified in place.
+  template <typename TImage>
+  static void CropRegionByBoundingBox(typename TImage::RegionType &region, typename TImage::RegionType &boundingBox)
+  {
+    typename TImage::IndexType idx = boundingBox.GetIndex();
+    typename TImage::SizeType size = boundingBox.GetSize();
+    typename TImage::IndexType regionIdx = region.GetIndex();
+    typename TImage::SizeType regionSize = region.GetSize();
+    for (size_t i = 0; i < 3; i++)
+    {
+      if (regionIdx[i] < idx[i])
+      {
+        regionSize[i] -= idx[i] - regionIdx[i];
+        regionIdx[i] = idx[i];
+      }
+      if (regionIdx[i] + regionSize[i] > idx[i] + size[i])
+      {
+        regionSize[i] = size[i] - (regionIdx[i] - idx[i]);
+      }
+    }
+    region.SetIndex(regionIdx);
+    region.SetSize(regionSize);
+  }
+
+  template <typename TGreyImage3D, typename TMaskImage3D>
+  static std::pair<typename TGreyImage3D::Pointer, typename TMaskImage3D::Pointer>
+  TrimImageByMask(typename TGreyImage3D::Pointer image, typename TMaskImage3D::Pointer mask, double scale = 1.3)
+  {
+    std::cout << "-- [image_helpers::TrimImageByMask] scale: " << scale << std::endl;
+
+    // Play with the regions
+    LabelImage3DType::RegionType trimmedRegion = GetTrimmedRegion<TMaskImage3D>(mask, 5, scale);
+
+    // Crop the images
+    auto outMask = ExtractRegion<LabelImage3DType>(mask, trimmedRegion);
+
+    auto outImage = ExtractRegion<Image3DType>(image, trimmedRegion);
+
+    return std::pair<typename TGreyImage3D::Pointer, typename TMaskImage3D::Pointer>(outImage, outMask);
+  }
+
+  template <typename TImage>
+  static typename TImage::RegionType
+  GetTrimmedRegion(typename TImage::Pointer image, int padding, double scale)
+  {
+    typename TImage::RegionType trimmedRegion;
+    auto originalRegion = image->GetLargestPossibleRegion();
+    auto trimmedImg = TrimImage<TImage>(image, padding, trimmedRegion);
+    auto scaledRegion = ScaleRegion<TImage>(trimmedRegion, scale);
+    CropRegionByBoundingBox<TImage>(scaledRegion, originalRegion);
+
+    return scaledRegion;
+  }
+
+  template<class TTPImage, class TTimeSeriesImage>
+  static typename TTPImage::Pointer
+  ExtractTimePointImage(TTimeSeriesImage *ts_img, unsigned int tp)
+  {
+    // Logic adapated from SNAP ImageWrapper method:
+    // ConfigureTimePointImageFromImage4D()
+    assert(tp >= 0);
+
+    unsigned int nt = ts_img->GetBufferedRegion().GetSize()[3u];
+    unsigned int bytes_per_volume = ts_img->GetPixelContainer()->Size() / nt;
+
+    typename TTPImage::Pointer tp_img = TTPImage::New();
+
+    typename TTPImage::RegionType region;
+    typename TTPImage::SpacingType spacing;
+    typename TTPImage::PointType origin;
+    typename TTPImage::DirectionType dir;
+    for(unsigned int j = 0; j < 3; j++)
+      {
+      region.SetSize(j, ts_img->GetBufferedRegion().GetSize()[j]);
+      region.SetIndex(j, ts_img->GetBufferedRegion().GetIndex()[j]);
+      spacing[j] = ts_img->GetSpacing()[j];
+      origin[j] = ts_img->GetOrigin()[j];
+      for(unsigned int k = 0; k < 3; k++)
+        dir(j,k) = ts_img->GetDirection()(j,k);
+      }
+
+    // All of the information from the 4D image is propagaged to the 3D timepoints
+    tp_img->SetRegions(region);
+    tp_img->SetSpacing(spacing);
+    tp_img->SetOrigin(origin);
+    tp_img->SetDirection(dir);
+    tp_img->SetNumberOfComponentsPerPixel(ts_img->GetNumberOfComponentsPerPixel());
+    tp_img->Allocate();
+
+    // Set the buffer pointer
+    tp_img->GetPixelContainer()->SetImportPointer(
+          ts_img->GetBufferPointer() + bytes_per_volume * tp,
+          bytes_per_volume);
+
+    return tp_img;
+  }
+
+  template <class TTPImage, class TTimeSeriesImage>
+  static typename TTimeSeriesImage::Pointer
+  CreateTimeSeriesImageFromList(std::vector<typename TTPImage::Pointer> tpImgList)
+  {
+    typename TTimeSeriesImage::Pointer tsImg = TTimeSeriesImage::New();
+    typename TTimeSeriesImage::RegionType region;
+    typename TTimeSeriesImage::SpacingType spacing;
+    typename TTimeSeriesImage::PointType origin;
+    typename TTimeSeriesImage::DirectionType direction;
+
+    auto firstTP = tpImgList[0];
+    auto nd = firstTP->GetImageDimension();
+    auto nt = tpImgList.size();
+    auto nc = 1; // we only consider 1 component per pixel for now
+
+
+    // Set the size of the time series image
+    typename TTPImage::SizeType tpSize = firstTP->GetLargestPossibleRegion().GetSize();
+    typename TTimeSeriesImage::SizeType tsSize;
+    for (size_t i = 0; i < nd; i++) {
+      tsSize[i] = tpSize[i];
+    }
+    tsSize[nd] = nt;
+    region.SetSize(tsSize);
+    region.SetIndex({0, 0, 0, 0});
+
+    // Set the spacing, origin, and direction of the time series image
+    origin.Fill(0);
+    spacing.Fill(1);
+    direction.SetIdentity();
+
+    for (auto i = 0; i < nd; ++i)
+    {
+      origin[i] = firstTP->GetOrigin()[i];
+      spacing[i] = firstTP->GetSpacing()[i];
+      for (auto j = 0; j < nd; ++j)
+      {
+        direction[i][j] = firstTP->GetDirection()[i][j];
+      }
+    }
+
+    // Set the region, spacing, origin, and direction of the time series image
+    tsImg->SetRegions(region);
+    tsImg->SetSpacing(spacing);
+    tsImg->SetOrigin(origin);
+    tsImg->SetDirection(direction);
+    tsImg->SetNumberOfComponentsPerPixel(nc);
+
+    // Allocate memory for the time series image
+    tsImg->Allocate();
+
+    // compose the tsBuffer
+    auto tsBuffer = tsImg->GetPixelContainer()->GetImportPointer();
+
+    for (unsigned int i = 0; i < nt; ++i)
+    {
+      auto tp = tpImgList[i];
+      auto tpBuffer = tp->GetPixelContainer()->GetImportPointer();
+      for (unsigned int j = 0; j < tp->GetLargestPossibleRegion().GetNumberOfPixels(); ++j)
+      {
+        tsBuffer[i * tp->GetLargestPossibleRegion().GetNumberOfPixels() + j] = tpBuffer[j];
+      }
+    }
+
+    return tsImg;
   }
 };
 

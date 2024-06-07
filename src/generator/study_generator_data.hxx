@@ -25,6 +25,9 @@ struct StudyGeneratorData
 
   // final output data
   std::map<TimePointType, TimePointData> tpStudyData;
+
+  // final 4d segmentation
+  LabelImage4DType::Pointer segmentation4D;
   
   void Initialize(TimePointType nT)
   {

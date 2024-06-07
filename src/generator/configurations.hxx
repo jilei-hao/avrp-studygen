@@ -113,11 +113,26 @@ struct SegmentationConfig
 
 struct StudyGenConfig
 {
-  std::string fnImage4D; // reference 4d image filename
-  TimePointType nT; // number of time points to process
-  std::vector<SegmentationConfig> segConfigList; // segmentation propagation config
-  std::map<LabelType, LabelConfig> labelConfigMap; // label level configurations
-  std::string dirOut; // directory for dumping output files
+  // reference 4d image filename
+  std::string fnImage4D; 
+
+  // number of time points to process
+  TimePointType nT; 
+
+  // segmentation propagation config
+  std::vector<SegmentationConfig> segConfigList;
+
+  // label level configurations
+  std::map<LabelType, LabelConfig> labelConfigMap; 
+
+  // directory for dumping output files
+  std::string dirOut; 
+
+  // if we want to trim the image to a region surrounding the segmentation
+  bool trim = false; 
+
+  // if trim = true, scale factor for the cropped region with basic padding 5vox
+  double trimmedRegionScale = 1.3;
 
   void Validate()
   {
