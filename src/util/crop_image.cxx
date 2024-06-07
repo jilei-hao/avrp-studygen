@@ -30,33 +30,6 @@ int main (int argc, char *argv[])
   auto imgInGrey = ih::ReadImage<Image3DType>(fnInGreyImage);
   Image3DType::Pointer imgTailGrey = imgInGrey;
 
-
-  // // Play with the regions
-  // auto regionBinary = imgInBinary->GetLargestPossibleRegion();
-  // auto regionGrey = imgInGrey->GetLargestPossibleRegion();
-  
-  // LabelImage3DType::RegionType trimmedRegion;
-  // auto trimmedImg = ih::TrimImage<LabelImage3DType>(imgTailBinary, 5, trimmedRegion);
-
-  // std::cout << "Trimmed Region with basic padding: " << std::endl;
-  // trimmedRegion.Print(std::cout);
-
-  // auto scaledRegion = ih::ScaleRegion<LabelImage3DType>(trimmedRegion, scale);
-  // std::cout << "Scaled Region with scaling : " << std::endl;
-  // scaledRegion.Print(std::cout);
-
-  // ih::CropRegionByBoundingBox<LabelImage3DType>(scaledRegion, regionBinary);
-  // std::cout << "Cropped Region with bounding box: " << std::endl;
-  // scaledRegion.Print(std::cout);
-  
-
-  // // Crop the images
-  // auto imgOutBinary = ih::ExtractRegion<LabelImage3DType>(imgTailBinary, scaledRegion);
-  // ih::WriteImage<LabelImage3DType>(imgOutBinary, fnOutBImage);
-
-  // auto imgOutGrey = ih::ExtractRegion<Image3DType>(imgTailGrey, scaledRegion);
-  // ih::WriteImage<Image3DType>(imgOutGrey, fnOutGreyImage);
-
   auto outPair = ih::TrimImageByMask<Image3DType, LabelImage3DType>(imgInGrey, imgInBinary, scale);
   ih::WriteImage<Image3DType>(outPair.first, fnOutGreyImage);
   ih::WriteImage<LabelImage3DType>(outPair.second, fnOutBImage);

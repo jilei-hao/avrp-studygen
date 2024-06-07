@@ -198,14 +198,14 @@ StudyGenerator
 
   // Process Seg Configs
   std::cout << "---- processing segmentation configs..." << std::endl;
-  LabelImage3DType::Pointer firstSegImg = nullptr;
+
+  LabelImage3DType::RegionType *trimmedRegion = nullptr;
   for (auto &sc : m_Config.segConfigList)
     {
     std::cout << "------ refTP: " << sc.refTP << std::endl;
     auto segImg = ihelpers::ReadImage<LabelImage3DType>(sc.fnRefSeg);
 
-    if (!firstSegImg)
-      firstSegImg = segImg;
+
 
     auto &tpData = m_Data.tpData.at(sc.refTP);
     tpData.segmentation = segImg;

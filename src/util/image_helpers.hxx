@@ -354,23 +354,28 @@ public:
   {
     std::cout << "-- [image_helpers::TrimImageByMask] scale: " << scale << std::endl;
 
-        // Play with the regions
-    auto regMask = image->GetLargestPossibleRegion();
-    auto regionGrey = mask->GetLargestPossibleRegion();
-    
-    LabelImage3DType::RegionType trimmedRegion;
-    auto trimmedImg = TrimImage<LabelImage3DType>(mask, 5, trimmedRegion);
-
-    auto scaledRegion = ScaleRegion<LabelImage3DType>(trimmedRegion, scale);
-
-    CropRegionByBoundingBox<LabelImage3DType>(scaledRegion, regMask);
+    // Play with the regions
+    LabelImage3DType::RegionType trimmedRegion = GetTrimmedRegion<TMaskImage3D>(mask, 5, scale);
 
     // Crop the images
-    auto outMask = ExtractRegion<LabelImage3DType>(mask, scaledRegion);
+    auto outMask = ExtractRegion<LabelImage3DType>(mask, trimmedRegion);
 
-    auto outImage = ExtractRegion<Image3DType>(image, scaledRegion);
+    auto outImage = ExtractRegion<Image3DType>(image, trimmedRegion);
 
     return std::pair<typename TGreyImage3D::Pointer, typename TMaskImage3D::Pointer>(outImage, outMask);
+  }
+
+  template <typename TImage>
+  static typename TImage::RegionType
+  GetTrimmedRegion(typename TImage::Pointer image, int padding, double scale)
+  {
+    typename TImage::RegionType trimmedRegion;
+    auto originalRegion = image->GetLargestPossibleRegion();
+    auto trimmedImg = TrimImage<TImage>(image, padding, trimmedRegion);
+    auto scaledRegion = ScaleRegion<TImage>(trimmedRegion, scale);
+    CropRegionByBoundingBox<TImage>(scaledRegion, originalRegion);
+
+    return scaledRegion;
   }
 };
 
