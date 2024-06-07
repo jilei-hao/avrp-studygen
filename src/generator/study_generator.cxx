@@ -50,7 +50,7 @@ StudyGenerator
   for (auto &[tp, data] : GetOutputData())
   {
     std::string fn = ssprintf("%s/img_%02d.vti", m_Config.dirOut.c_str(), tp);
-    ImageHelpers::WriteImage<Image3DType>(data.image, fn);
+    ImageHelpers::WriteVTKImage<Image3DType>(data.image, fn);
   }
 }
 
@@ -63,7 +63,7 @@ StudyGenerator
   for (auto &[tp, data] : GetOutputData())
   {
     std::string fn = ssprintf("%s/seg_%02d.vti", m_Config.dirOut.c_str(), tp);
-    ImageHelpers::WriteImage<LabelImage3DType>(data.segmentation, fn);
+    ImageHelpers::WriteVTKImage<LabelImage3DType>(data.segmentation, fn);
   }
 }
 
@@ -199,24 +199,48 @@ StudyGenerator
   // Process Seg Configs
   std::cout << "---- processing segmentation configs..." << std::endl;
 
-  LabelImage3DType::RegionType *trimmedRegion = nullptr;
+  // Get region to trim the image
+  LabelImage3DType::RegionType trimmedRegion;
+  LabelImage3DType::Pointer firstSegImg = nullptr;
+
   for (auto &sc : m_Config.segConfigList)
     {
     std::cout << "------ refTP: " << sc.refTP << std::endl;
     auto segImg = ihelpers::ReadImage<LabelImage3DType>(sc.fnRefSeg);
 
-
+    // Trim the Seg Image
+    if (m_Config.trim)
+      {
+      if (!firstSegImg)
+        {
+          firstSegImg = segImg;
+          trimmedRegion = ihelpers::GetTrimmedRegion<LabelImage3DType>(segImg, 5, 1.3);
+        }
+       
+      std::cout << "------ trimming seg image..." << std::endl;
+      segImg = ihelpers::ExtractRegion<LabelImage3DType>(segImg, trimmedRegion);
+      }
 
     auto &tpData = m_Data.tpData.at(sc.refTP);
     tpData.segmentation = segImg;
     tpData.labelMeshMap = MeshProcessor::GenerateLabelMeshMap(segImg, m_Config.labelConfigMap);
     }
 
-  // Trim the Image by seg image from the first segConfig
+  // Trim the Image
   if (m_Config.trim)
     {
     std::cout << "---- trimming image..." << std::endl;
-    // m_Data.image4D = ihelpers::TrimImageByMask(m_Data.image4D, firstSegImg, m_Config.trimmedRegionScale);
+    std::vector<Image3DType::Pointer> tpImgList;
+    for (unsigned int i = 0; i < m_Config.nT; ++i)
+      {
+      std::cout << "------ processing tp: " << i << std::endl;
+
+      auto tpImg = ihelpers::ExtractTimePointImage<Image3DType, Image4DType>(m_Data.image4D, i);
+      tpImg = ihelpers::ExtractRegion<Image3DType>(tpImg, trimmedRegion);
+      tpImgList.push_back(tpImg);
+      }
+
+    m_Data.image4D = ihelpers::CreateTimeSeriesImageFromList<Image3DType, Image4DType>(tpImgList);
     }
 
 }

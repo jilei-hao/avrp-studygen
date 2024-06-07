@@ -43,24 +43,22 @@ public:
   template <typename TImage>
   static void WriteImage(typename TImage::Pointer image, std::string filename)
   {
-    std::string ext = getFileExtension(filename);
-    if (ext == "vti")
-      {
-      auto vtkImg = MeshHelpers::GetVTKImage<TImage>(image);
-      vtkNew<vtkXMLImageDataWriter> writer;
-      writer->SetInputData(vtkImg);
-      writer->SetFileName(filename.c_str());
-      writer->Write();
-      }
-    else
-      {
-      auto writer = itk::ImageFileWriter<TImage>::New();
-      writer->SetInput(image);
-      writer->SetFileName(filename);
-      writer->Write();
-      }
-
+    auto writer = itk::ImageFileWriter<TImage>::New();
+    writer->SetInput(image);
+    writer->SetFileName(filename);
+    writer->Write();
   }
+
+  template <typename TImage>
+  static void WriteVTKImage(typename TImage::Pointer image, std::string filename)
+  {
+    auto vtkImg = MeshHelpers::GetVTKImage<TImage>(image);
+    vtkNew<vtkXMLImageDataWriter> writer;
+    writer->SetInputData(vtkImg);
+    writer->SetFileName(filename.c_str());
+    writer->Write();
+  }
+
 
   template <typename TImageIn, typename TImageOut>
   static typename TImageOut::Pointer
@@ -376,6 +374,116 @@ public:
     CropRegionByBoundingBox<TImage>(scaledRegion, originalRegion);
 
     return scaledRegion;
+  }
+
+  template<class TTPImage, class TTimeSeriesImage>
+  static typename TTPImage::Pointer
+  ExtractTimePointImage(TTimeSeriesImage *ts_img, unsigned int tp)
+  {
+    // Logic adapated from SNAP ImageWrapper method:
+    // ConfigureTimePointImageFromImage4D()
+    assert(tp >= 0);
+
+    unsigned int nt = ts_img->GetBufferedRegion().GetSize()[3u];
+    unsigned int bytes_per_volume = ts_img->GetPixelContainer()->Size() / nt;
+
+    typename TTPImage::Pointer tp_img = TTPImage::New();
+
+    typename TTPImage::RegionType region;
+    typename TTPImage::SpacingType spacing;
+    typename TTPImage::PointType origin;
+    typename TTPImage::DirectionType dir;
+    for(unsigned int j = 0; j < 3; j++)
+      {
+      region.SetSize(j, ts_img->GetBufferedRegion().GetSize()[j]);
+      region.SetIndex(j, ts_img->GetBufferedRegion().GetIndex()[j]);
+      spacing[j] = ts_img->GetSpacing()[j];
+      origin[j] = ts_img->GetOrigin()[j];
+      for(unsigned int k = 0; k < 3; k++)
+        dir(j,k) = ts_img->GetDirection()(j,k);
+      }
+
+    // All of the information from the 4D image is propagaged to the 3D timepoints
+    tp_img->SetRegions(region);
+    tp_img->SetSpacing(spacing);
+    tp_img->SetOrigin(origin);
+    tp_img->SetDirection(dir);
+    tp_img->SetNumberOfComponentsPerPixel(ts_img->GetNumberOfComponentsPerPixel());
+    tp_img->Allocate();
+
+    // Set the buffer pointer
+    tp_img->GetPixelContainer()->SetImportPointer(
+          ts_img->GetBufferPointer() + bytes_per_volume * tp,
+          bytes_per_volume);
+
+    return tp_img;
+  }
+
+  template <class TTPImage, class TTimeSeriesImage>
+  static typename TTimeSeriesImage::Pointer
+  CreateTimeSeriesImageFromList(std::vector<typename TTPImage::Pointer> tpImgList)
+  {
+    typename TTimeSeriesImage::Pointer tsImg = TTimeSeriesImage::New();
+    typename TTimeSeriesImage::RegionType region;
+    typename TTimeSeriesImage::SpacingType spacing;
+    typename TTimeSeriesImage::PointType origin;
+    typename TTimeSeriesImage::DirectionType direction;
+
+    auto firstTP = tpImgList[0];
+    auto nd = firstTP->GetImageDimension();
+    auto nt = tpImgList.size();
+    auto nc = 1; // we only consider 1 component per pixel for now
+
+
+    // Set the size of the time series image
+    typename TTPImage::SizeType tpSize = firstTP->GetLargestPossibleRegion().GetSize();
+    typename TTimeSeriesImage::SizeType tsSize;
+    for (size_t i = 0; i < nd; i++) {
+      tsSize[i] = tpSize[i];
+    }
+    tsSize[nd] = nt;
+    region.SetSize(tsSize);
+    region.SetIndex({0, 0, 0, 0});
+
+    // Set the spacing, origin, and direction of the time series image
+    origin.Fill(0);
+    spacing.Fill(1);
+    direction.SetIdentity();
+
+    for (auto i = 0; i < nd; ++i)
+    {
+      origin[i] = firstTP->GetOrigin()[i];
+      spacing[i] = firstTP->GetSpacing()[i];
+      for (auto j = 0; j < nd; ++j)
+      {
+        direction[i][j] = firstTP->GetDirection()[i][j];
+      }
+    }
+
+    // Set the region, spacing, origin, and direction of the time series image
+    tsImg->SetRegions(region);
+    tsImg->SetSpacing(spacing);
+    tsImg->SetOrigin(origin);
+    tsImg->SetDirection(direction);
+    tsImg->SetNumberOfComponentsPerPixel(nc);
+
+    // Allocate memory for the time series image
+    tsImg->Allocate();
+
+    // compose the tsBuffer
+    auto tsBuffer = tsImg->GetPixelContainer()->GetImportPointer();
+
+    for (unsigned int i = 0; i < nt; ++i)
+    {
+      auto tp = tpImgList[i];
+      auto tpBuffer = tp->GetPixelContainer()->GetImportPointer();
+      for (unsigned int j = 0; j < tp->GetLargestPossibleRegion().GetNumberOfPixels(); ++j)
+      {
+        tsBuffer[i * tp->GetLargestPossibleRegion().GetNumberOfPixels() + j] = tpBuffer[j];
+      }
+    }
+
+    return tsImg;
   }
 };
 

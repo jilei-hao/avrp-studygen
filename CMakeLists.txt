@@ -89,6 +89,9 @@ target_link_libraries(SmoothImage PUBLIC StudyGenAPI)
 add_executable(CropImage src/util/crop_image.cxx)
 target_link_libraries(CropImage PUBLIC StudyGenAPI)
 
+add_executable(CropImage4D src/util/crop_image_4d.cxx)
+target_link_libraries(CropImage4D PUBLIC StudyGenAPI)
+
 # Testing
 add_subdirectory(testing)
 
